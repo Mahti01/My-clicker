@@ -93,6 +93,13 @@ if(d<bd){bd=d;best=p}
 return {x:best.x,y:best.y}
 }
 function plotAt(x,y){return plots.some(p=>p.x===x&&p.y===y)}
+function poly(points,fill,stroke,w=1){
+ctx.beginPath();
+points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+ctx.closePath();
+ctx.fillStyle=fill;ctx.fill();
+if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=w*cam.z;ctx.stroke()}
+}
 function roundedRect(x,y,w,h,r,fill,stroke){
 ctx.beginPath();ctx.roundRect(x,y,w,h,r);
 ctx.fillStyle=fill;ctx.fill();
