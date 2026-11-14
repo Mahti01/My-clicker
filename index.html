@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Построй город</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif;background:#b8d5df;color:#17201e}
+#game{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
+.ui{position:fixed;inset:0;pointer-events:none}
+.top{display:flex;justify-content:space-between;padding:14px;gap:8px}
+.stats{display:flex;gap:7px;flex-wrap:wrap}.card{background:#fff; padding:8px 12px;border-radius:14px;box-shadow:0 6px 20px #0002;font-size:11px}.card b{display:block;font-size:15px;margin-top:2px}
+.level{background:#fff;padding:10px 13px;border-radius:14px;box-shadow:0 6px 20px #0002;text-align:right;font-size:13px}.level small{display:block;color:#667;margin-top:3px}
+.bottom{position:absolute;left:14px;right:14px;bottom:14px;display:flex;align-items:flex-end;gap:10px}.income{background:#fff;padding:11px 14px;border-radius:14px;box-shadow:0 6px 20px #0002}.income small{display:block;color:#667}.income b{font-size:17px}
+.builds{display:flex;gap:7px;overflow:auto;pointer-events:auto}.build{min-width:92px;padding:9px;border:0;border-radius:14px;background:#fff;box-shadow:0 6px 20px #0002;text-align:left}.build:disabled{opacity:.45}.ico{font-size:23px}.build b{display:block;font-size:12px}.build span{font-size:10px;color:#667}
+.hint{position:absolute;top:82px;left:50%;transform:translateX(-50%);background:#17201ecc;color:#fff;padding:8px 13px;border-radius:20px;font-size:12px;opacity:0;transition:.2s}.hint.show{opacity:1}
+.reset{position:absolute;right:14px;bottom:80px;border:0;background:#fff;padding:7px 10px;border-radius:10px;font-size:11px;pointer-events:auto}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div class="ui">
+<div class="top"><div class="stats">
+<div class="card">Деньги<b id="money">1 000</b></div>
+<div class="card">Жители<b id="pop">0</b></div>
+<div class="card">Доход<b id="rate">+0/сек</b></div>
+</div><div class="level"><b id="level">Город 1</b><small id="xp">0 / 100 XP</small></div></div>
+<div id="hint" class="hint">Выберите здание</div>
+<div class="bottom"><div class="income"><small>Доход города</small><b id="income">0 монет / сек</b></div><div id="builds" class="builds"></div></div>
+<button id="reset" class="reset">Сбросить</button>
+</div>
+<script>
+const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+let W=innerWidth,H=innerHeight,dpr=1;
+const types=[
+{id:"house",name:"Дом",ico:"🏠",cost:150,income:2,pop:12,xp:20,color:"#c99d83",h:45},
+{id:"shop",name:"Магазин",ico:"🏪",cost:400,income:7,pop:4,xp:35,color:"#c98d63",h:58},
+{id:"office",name:"Офис",ico:"🏢",cost:900,income:18,pop:8,xp:60,color:"#7f9fa8",h:88},
+{id:"park",name:"Парк",ico:"🌳",cost:600,income:1,pop:20,xp:45,color:"#86a979",h:28}
+];
+let state=JSON.parse(localStorage.getItem("city_builder")||"null")||{money:1000,pop:0,xp:0,level:1,buildings:[]};
+let cam={x:W/2,y:H/2+30,z:1},drag=null,selected=null;
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(dpr,0,0,dpr,0,0);draw()}
+function iso(x,y){return{x:cam.x+(x-y)*45*cam.z,y:cam.y+(x+y)*22.5*cam.z}}
+function grid(x,y){let X=(x-cam.x)/(45*cam.z),Y=(y-cam.y)/(22.5*cam.z);return{x:Math.floor((X+Y)/2),y:Math.floor((Y-X)/2)}}
+function drawGround(){for(let x=-12;x<13;x++)for(let y=-12;y<13;y++){let p=iso(x,y),tw=45*cam.z,th=22.5*cam.z;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+tw,p.y+th);ctx.lineTo(p.x,p.y+th*2);ctx.lineTo(p.x-tw,p.y+th);ctx.closePath();ctx.fillStyle=(x+y)%2?"#b9d2aa":"#bfd8b0";ctx.fill();ctx.strokeStyle="#4c674d29";ctx.stroke()}}
+function drawBuilding(b){let p=iso(b.x,b.y),t=types.find(x=>x.id===b.type),s=cam.z,w=70*s,d=38*s,h=t.h*s;ctx.save();ctx.translate(p.x,p.y);ctx.fillStyle="#fff";ctx.beginPath();ctx.moveTo(-w/2,0);ctx.lineTo(0,d/2);ctx.lineTo(w/2,0);ctx.lineTo(0,-d/2);ctx.closePath();ctx.fill();ctx.strokeStyle="#17201e44";ctx.stroke();ctx.fillStyle=t.color;ctx.beginPath();ctx.moveTo(-w/2,-h*.12);ctx.lineTo(0,d/2-h*.12);ctx.lineTo(w/2,-h*.12);ctx.lineTo(0,-d/2-h*.12);ctx.closePath();ctx.fill();ctx.stroke();if(t.id!=="park"){ctx.fillStyle="#e9f1e8";ctx.fillRect(-13*s,-h*.47,9*s,9*s);ctx.fillRect(5*s,-h*.35,9*s,9*s)}ctx.font=Math.max(20,28*s)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(t.ico,0,-h*.65);ctx.restore()}
+function draw(){ctx.clearRect(0,0,W,H);drawGround();state.buildings.slice().sort((a,b)=>a.x+a.y-(b.x+b.y)).forEach(drawBuilding)}
+function fmt(n){return Math.floor(n).toLocaleString("ru-RU")}
+function rate(){return state.buildings.reduce((a,b)=>a+(types.find(t=>t.id===b.type)?.income||0),0)}
+function render(){money.textContent=fmt(state.money);pop.textContent=fmt(state.pop);rateEl.textContent="+"+fmt(rate())+"/сек";income.textContent=fmt(rate())+" монет / сек";level.textContent="Город "+state.level;xp.textContent=fmt(state.xp)+" / "+state.level*100+" XP";builds.innerHTML="";types.forEach(t=>{let b=document.createElement("button");b.className="build";b.disabled=state.money<t.cost;b.innerHTML='<div class="ico">'+t.ico+'</div><b>'+t.name+'</b><span>'+fmt(t.cost)+' 💰 · +'+t.income+'/сек</span>';b.onclick=()=>{selected=t.id;hint.textContent="Нажмите на клетку";hint.classList.add("show");setTimeout(()=>hint.classList.remove("show"),1600)};builds.appendChild(b)});localStorage.setItem("city_builder",JSON.stringify(state));draw()}
+canvas.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,moved:false};canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener("pointermove",e=>{if(drag){let dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>5)drag.moved=true;cam.x=drag.cx+dx;cam.y=drag.cy+dy;draw()}});
+canvas.addEventListener("pointerup",e=>{if(!drag||drag.moved){drag=null;return}let g=grid(e.clientX,e.clientY);drag=null;if(!selected)return;if(Math.abs(g.x)>8||Math.abs(g.y)>8)return;if(state.buildings.some(b=>b.x===g.x&&b.y===g.y))return;let t=types.find(x=>x.id===selected);if(state.money<t.cost)return;state.money-=t.cost;state.pop+=t.pop;state.xp+=t.xp;let need=state.level*100;if(state.xp>=need){state.xp-=need;state.level++}state.buildings.push({type:t.id,x:g.x,y:g.y});selected=null;render()});
+canvas.addEventListener("wheel",e=>{e.preventDefault();cam.z=Math.max(.65,Math.min(1.7,cam.z*(e.deltaY<0?1.1:.9)));draw()},{passive:false});
+document.getElementById("reset").onclick=()=>{if(confirm("Начать город заново?")){localStorage.removeItem("city_builder");location.reload()}};
+const money=document.getElementById("money"),pop=document.getElementById("pop"),rateEl=document.getElementById("rate"),income=document.getElementById("income"),level=document.getElementById("level"),xp=document.getElementById("xp"),builds=document.getElementById("builds"),hint=document.getElementById("hint");
+let last=performance.now();function loop(now){state.money+=rate()*(now-last)/1000;last=now;render();requestAnimationFrame(loop)}
+addEventListener("resize",resize);resize();render();requestAnimationFrame(loop);
+</script>
+</body>
+</html>
