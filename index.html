@@ -218,9 +218,35 @@ function plotCard(v,i){
  poly([{x:q.x,y:q.y-h},{x:q.x+w,y:q.y},{x:q.x,y:q.y+h},{x:q.x-w,y:q.y}], '#a8cc8b','#789766');
  ctx.fillStyle='rgba(255,255,255,.18)';
  ctx.beginPath();ctx.ellipse(q.x,q.y+3,w*.72,h*.36,0,0,Math.PI*2);ctx.fill();
- tree(q.x-w*.58,q.y-h*.18,.34);tree(q.x+w*.58,q.y-h*.10,.34);
- if(state.buildings[i]) building(q.x,q.y,state.buildings[i].type,state.buildings[i].level);
- else{
+
+ // driveway from the lot to the nearest street
+ const roadPoint=iso(v[0],v[1]+1.5);
+ ctx.strokeStyle='rgba(50,58,48,.16)';ctx.lineWidth=13;ctx.lineCap='round';
+ ctx.beginPath();ctx.moveTo(q.x,q.y+7);ctx.lineTo(roadPoint.x,roadPoint.y+7);ctx.stroke();
+ ctx.strokeStyle='#d9d0bc';ctx.lineWidth=9;
+ ctx.beginPath();ctx.moveTo(q.x,q.y+6);ctx.lineTo(roadPoint.x,roadPoint.y+6);ctx.stroke();
+
+ // small yard path
+ ctx.strokeStyle='#cfc3aa';ctx.lineWidth=4;
+ ctx.beginPath();ctx.moveTo(q.x,q.y+4);ctx.lineTo(q.x,roadPoint.y-2);ctx.stroke();
+
+ tree(q.x-w*.58,q.y-h*.18,.30);tree(q.x+w*.58,q.y-h*.10,.30);
+
+ if(state.buildings[i]){
+   building(q.x,q.y,state.buildings[i].type,state.buildings[i].level);
+   // mailbox
+   ctx.fillStyle='#795f4e';ctx.fillRect(q.x+w*.50,q.y+h*.18,2,7);
+   ctx.fillStyle='#c9b98f';ctx.fillRect(q.x+w*.48,q.y+h*.12,7,4);
+   // parked car on some developed lots
+   if(i%3===0){
+     ctx.save();ctx.translate(q.x+w*.32,q.y+h*.22);ctx.rotate(-.08);
+     ctx.fillStyle='rgba(45,52,48,.28)';ctx.fillRect(-11,4,22,5);
+     ctx.fillStyle='#b94f46';ctx.fillRect(-10,-1,20,7);
+     ctx.fillStyle='#b9d2d5';ctx.fillRect(-5,-4,10,4);
+     ctx.fillStyle='#303735';ctx.beginPath();ctx.arc(-6,6,2.5,0,Math.PI*2);ctx.arc(6,6,2.5,0,Math.PI*2);ctx.fill();
+     ctx.restore();
+   }
+ }else{
    ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2;
    ctx.beginPath();ctx.moveTo(q.x,q.y-h*.48);ctx.lineTo(q.x+w*.48,q.y);ctx.lineTo(q.x,q.y+h*.48);ctx.lineTo(q.x-w*.48,q.y);ctx.closePath();ctx.stroke();ctx.setLineDash([]);
  }
