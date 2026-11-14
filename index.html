@@ -123,6 +123,38 @@ ctx.font=Math.max(16,23*s)+'px Arial';ctx.textAlign='center';ctx.textBaseline='m
 if(level>1){ctx.fillStyle='#fff';ctx.font='700 10px Arial';ctx.fillText('★ '+level,x,y+h*.67)}
 }
 function fountain(){const q=iso(0,0),r=Math.min(W,H)*.105;ctx.fillStyle='rgba(50,55,45,.2)';ctx.beginPath();ctx.ellipse(q.x+4,q.y+8,r*1.08,r*.55,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#c9bea9';ctx.beginPath();ctx.ellipse(q.x,q.y,r*1.08,r*.58,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#70b6c1';ctx.beginPath();ctx.ellipse(q.x,q.y,r*.82,r*.43,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#f7f1e6';ctx.lineWidth=4;ctx.stroke();ctx.fillStyle='#d9cfbf';ctx.beginPath();ctx.ellipse(q.x,q.y-r*.18,r*.22,r*.11,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(q.x,q.y-r*.18);ctx.quadraticCurveTo(q.x-7,q.y-r*.55,q.x,q.y-r*.7);ctx.quadraticCurveTo(q.x+7,q.y-r*.55,q.x,q.y-r*.18);ctx.stroke()}
+function drawCityBackdrop(){
+  ctx.save();
+  // distant city silhouette
+  ctx.fillStyle='#6f876d';
+  for(let i=0;i<18;i++){
+    const x=-20+i*(W+40)/18,h=34+(i%5)*15;
+    ctx.fillRect(x,H*.19-h,48,h);
+    ctx.fillStyle='#81977a';
+    for(let j=0;j<3;j++)ctx.fillRect(x+9+j*12,H*.19-h+9,6,5);
+    ctx.fillStyle='#6f876d';
+  }
+  // river / park edge
+  ctx.fillStyle='#9bb8b0';
+  ctx.beginPath();ctx.moveTo(-30,H*.02);ctx.bezierCurveTo(W*.2,H*.13,W*.35,-H*.02,W*.55,H*.1);ctx.bezierCurveTo(W*.72,H*.2,W*.85,H*.04,W+30,H*.13);ctx.lineTo(W+30,0);ctx.lineTo(-30,0);ctx.closePath();ctx.fill();
+  // distant roads
+  ctx.strokeStyle='rgba(242,235,214,.42)';ctx.lineWidth=18;
+  ctx.beginPath();ctx.moveTo(-20,H*.24);ctx.quadraticCurveTo(W*.48,H*.08,W+20,H*.23);ctx.stroke();
+  ctx.restore();
+}
+function drawHouseAccessRoads(){
+  ctx.save();
+  ctx.lineCap='round';
+  plots.forEach(v=>{
+    const q=iso(v[0],v[1]);
+    const roadY=q.y+Math.min(W/16,H/22)*.9;
+    ctx.strokeStyle='rgba(65,72,58,.14)';ctx.lineWidth=18;
+    ctx.beginPath();ctx.moveTo(q.x,roadY-8);ctx.lineTo(q.x,roadY+18);ctx.stroke();
+    ctx.strokeStyle='#e3d8c1';ctx.lineWidth=14;
+    ctx.beginPath();ctx.moveTo(q.x,roadY-8);ctx.lineTo(q.x,roadY+18);ctx.stroke();
+  });
+  ctx.restore();
+}
 function drawDistrictDecor(){
   const roads=[[-6,-6,6,-6],[-6,-3,6,-3],[-6,0,6,0],[-6,3,6,3],[-6,6,6,6],[-6,-6,-6,6],[-3,-6,-3,6],[0,-6,0,6],[3,-6,3,6],[6,-6,6,6]];
   ctx.save();
@@ -140,13 +172,13 @@ function drawDistrictDecor(){
   ctx.restore();
 }
 function draw(){ctx.clearRect(0,0,W,H);clampCam();ctx.fillStyle='#8eae7a';ctx.fillRect(0,0,W,H);ctx.save();ctx.translate(W/2+cam.x,H/2+cam.y);ctx.scale(cam.z,cam.z);ctx.translate(-W/2,-H/2);
-ctx.fillStyle='#e8dfcc';poly([{x:35,y:30},{x:W-35,y:30},{x:W-55,y:H-30},{x:55,y:H-30}],'#e8dfcc','#cfc4ad');drawDistrictDecor();
+ctx.fillStyle='#e8dfcc';poly([{x:35,y:30},{x:W-35,y:30},{x:W-55,y:H-30},{x:55,y:H-30}],'#e8dfcc','#cfc4ad');drawCityBackdrop();drawDistrictDecor();
 const L=60,R=W-60,T=90,B=H-70,M=W/2;
 function road(x1,y1,x2,y2){
 ctx.strokeStyle='rgba(62,70,55,.13)';ctx.lineWidth=49;ctx.beginPath();ctx.moveTo(x1+3,y1+4);ctx.lineTo(x2+3,y2+4);ctx.stroke();
 ctx.strokeStyle='#d2c7b2';ctx.lineWidth=44;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
 ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
-road(L,T,R,T);road(L,H/2,R,H/2);road(L,B,R,B);road(L,T,L,B);road(M,T,M,B);road(R,T,R,B);road(L,H*.25,R,H*.25);road(L,H*.75,R,H*.75);
+road(L,T,R,T);road(L,H/2,R,H/2);road(L,B,R,B);road(L,T,L,B);road(M,T,M,B);road(R,T,R,B);road(L,H*.25,R,H*.25);road(L,H*.75,R,H*.75);drawHouseAccessRoads();
 plots.forEach((v,i)=>{const q=iso(v[0],v[1]),s=Math.min(W/12,H/17),w=s*1.55,h=s*.73;poly([{x:q.x,y:q.y-h},{x:q.x+w,y:q.y},{x:q.x,y:q.y+h},{x:q.x-w,y:q.y}], '#b7d597','#809b69');tree(q.x-w*.58,q.y-h*.18,.42);tree(q.x+w*.58,q.y-h*.12,.38);if(state.buildings[i])building(q.x,q.y,state.buildings[i].type,state.buildings[i].level);else{ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(255,255,255,.75)';ctx.beginPath();ctx.moveTo(q.x,q.y-h*.45);ctx.lineTo(q.x+w*.45,q.y);ctx.lineTo(q.x,q.y+h*.45);ctx.lineTo(q.x-w*.45,q.y);ctx.closePath();ctx.stroke();ctx.setLineDash([])}})
 fountain();for(let i=0;i<8;i++)lamp(W*.16+i*W*.10,H*.5);for(let i=0;i<12;i++)tree(35+i*(W-70)/11,55+(i%3)*9,.58);for(let i=0;i<10;i++)tree(42+i*(W-84)/9,H-50-(i%3)*8,.58);for(let i=0;i<6;i++)tree(38,H*.18+i*H*.12,.52);for(let i=0;i<6;i++)tree(W-38,H*.18+i*H*.12,.52);
 ctx.restore();updateUI()}
