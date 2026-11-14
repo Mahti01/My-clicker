@@ -71,17 +71,42 @@ function grid(px,py){let X=(px-cam.x)/(45*cam.z),Y=(py-cam.y)/(22.5*cam.z);retur
 function diamond(x,y,fill,stroke){let p=iso(x,y),tw=45*cam.z,th=22.5*cam.z;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+tw,p.y+th);ctx.lineTo(p.x,p.y+th*2);ctx.lineTo(p.x-tw,p.y+th);ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.stroke()}
 function drawGround(){
 for(let x=-14;x<=14;x++)for(let y=-14;y<=14;y++){
-let water=Math.abs(x)>9||Math.abs(y)>9;
-diamond(x,y,water?((x+y)%2?"#8ebdca":"#94c5cf"):((x+y)%2?"#b8d0a7":"#bfd8ad"),water?"#ffffff18":"#48654d22");
-if(!water&&((x===0&&y%4===0)||(y===0&&x%4===0))){
-let p=iso(x,y),s=cam.z;ctx.strokeStyle="#d7d9c64a";ctx.lineWidth=5*s;ctx.beginPath();ctx.moveTo(p.x-31*s,p.y+15*s);ctx.lineTo(p.x+31*s,p.y-15*s);ctx.stroke();
+let water=(x<=-9)||(x>=10)||(y<=-10)||(y>=10);
+let park=(x+y)%7===0 && Math.abs(x)<8 && Math.abs(y)<8;
+let fill=water?(((x+y)&1)?"#86b8c5":"#91c3ce"):(park?"#a9c991":(((x+y)&1)?"#c2d9b1":"#b9d2aa"));
+diamond(x,y,fill,water?"#ffffff20":"#526b5028");
 }
 }
+function roadTile(x,y){
+let p=iso(x,y),s=cam.z,tw=45*s,th=22.5*s;
+ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+tw,p.y+th);ctx.lineTo(p.x,p.y+th*2);ctx.lineTo(p.x-tw,p.y+th);ctx.closePath();
+ctx.fillStyle="#c8c1ad";ctx.fill();
+ctx.strokeStyle="#a89f8c66";ctx.stroke();
+ctx.strokeStyle="#eee9d9aa";ctx.lineWidth=2*s;
+ctx.beginPath();ctx.moveTo(p.x-22*s,p.y+11*s);ctx.lineTo(p.x+22*s,p.y-11*s);ctx.stroke();
 }
 function drawRoads(){
-state.buildings.forEach(b=>{
-let p=iso(b.x,b.y),s=cam.z;ctx.strokeStyle="#d7d2bd";ctx.lineWidth=11*s;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(p.x-29*s,p.y+14*s);ctx.lineTo(p.x+29*s,p.y-14*s);ctx.stroke();
-});
+for(let x=-9;x<=9;x++)for(let y=-9;y<=9;y++){
+if(x%3===0||y%3===0)roadTile(x,y);
+}
+}
+function drawMapDetails(){
+let s=cam.z;
+for(let x=-8;x<=8;x++)for(let y=-8;y<=8;y++){
+if((x%4===1&&y%4===1)||(x%5===-1&&y%3===0)){
+let p=iso(x,y);
+ctx.save();ctx.translate(p.x,p.y);
+ctx.fillStyle="#6f5a43";ctx.fillRect(-2*s,-13*s,4*s,13*s);
+ctx.fillStyle="#5b8d5b";ctx.beginPath();ctx.arc(0,-19*s,10*s,0,Math.PI*2);ctx.arc(-6*s,-14*s,7*s,0,Math.PI*2);ctx.arc(6*s,-14*s,7*s,0,Math.PI*2);ctx.fill();
+ctx.restore();
+}
+}
+let plaza=iso(0,0);
+ctx.save();ctx.translate(plaza.x,plaza.y);
+ctx.fillStyle="#ddd7c6";ctx.beginPath();ctx.ellipse(0,0,30*s,15*s,0,0,Math.PI*2);ctx.fill();
+ctx.strokeStyle="#b6ae9d";ctx.stroke();
+ctx.fillStyle="#9c8d72";ctx.beginPath();ctx.arc(0,-5*s,5*s,0,Math.PI*2);ctx.fill();
+ctx.restore();
 }
 function drawTree(x,y,s){let p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);ctx.fillStyle="#735d47";ctx.fillRect(-3*s,-18*s,6*s,18*s);ctx.fillStyle="#477c55";ctx.beginPath();ctx.arc(0,-25*s,15*s,0,Math.PI*2);ctx.fill();ctx.fillStyle="#5d915f";ctx.beginPath();ctx.arc(-8*s,-19*s,11*s,0,Math.PI*2);ctx.arc(8*s,-20*s,11*s,0,Math.PI*2);ctx.fill();ctx.restore()}
 function drawBuilding(b){
@@ -93,7 +118,7 @@ ctx.fillStyle=t.color;ctx.beginPath();ctx.moveTo(-w/2,-h*.12);ctx.lineTo(0,d/2-h
 ctx.fillStyle="#e9f1e8";for(let yy=0;yy<2;yy++){ctx.fillRect(-17*s,-h*.47+yy*17*s,10*s,10*s);ctx.fillRect(7*s,-h*.35+yy*17*s,10*s,10*s)}
 ctx.font=Math.max(19,27*s)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(t.ico,0,-h*.68);ctx.restore();
 }
-function draw(){ctx.clearRect(0,0,W,H);drawGround();drawRoads();state.buildings.slice().sort((a,b)=>a.x+a.y-(b.x+b.y)).forEach(drawBuilding)}
+function draw(){ctx.clearRect(0,0,W,H);drawGround();drawRoads();drawMapDetails();state.buildings.slice().sort((a,b)=>a.x+a.y-(b.x+b.y)).forEach(drawBuilding)}
 function findBuildingAt(px,py){
 let g=grid(px,py),best=null;
 for(let b of state.buildings){if(b.x===g.x&&b.y===g.y)best=b}
