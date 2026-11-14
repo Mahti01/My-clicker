@@ -8,8 +8,7 @@ const BUILDINGS=[
 export class BuildingSystem{
   constructor(state,economy,world){
     this.state=state;this.economy=economy;this.world=world;this.catalog=BUILDINGS;
-    this.selected=null;this.placement=false;this.preview=null;this.bind();
-    this.render();
+    this.selected=null;this.placement=false;this.bind();this.render();
   }
   bind(){
     this.world.addEventListener("pointerdown",e=>{
@@ -17,14 +16,15 @@ export class BuildingSystem{
       e.preventDefault();e.stopPropagation();
       const cell=this.world.pointerToCell(e.clientX,e.clientY);
       if(!cell)return;
-      if(this.canPlace(cell,this.selected)){this.place(cell,this.selected);}else this.world.flashMessage("Здесь нельзя строить");
+      if(this.canPlace(cell,this.selected))this.place(cell,this.selected);
+      else this.world.flashMessage("Здесь нельзя строить");
     },true);
   }
   select(id){
     this.selected=this.catalog.find(x=>x.id===id)||null;
     this.placement=Boolean(this.selected);
     this.world.setBuildMode(this.placement);
-    this.world.showPreview(this.selected);
+    if(this.selected)this.world.showPreview(this.selected);
   }
   cancel(){this.selected=null;this.placement=false;this.world.setBuildMode(false);this.world.clearPreview();}
   canPlace(cell,item){
@@ -40,7 +40,8 @@ export class BuildingSystem{
     if(!this.economy.spend(item.cost)){this.world.flashMessage("Недостаточно денег");return;}
     const state=this.state.get();
     const building={id:crypto.randomUUID?.()||("b-"+Date.now()+"-"+Math.random().toString(16).slice(2)),type:item.id,x:cell.x,y:cell.y,w:item.w,h:item.h};
-    this.state.set({buildings:[...(state.world?.buildings||[]),building]});
+    const buildings=[...(state.world?.buildings||[]),building];
+    this.state.set({world:{...state.world,buildings}});
     this.economy.addExperience(25);
     this.world.flashMessage(item.name+" построен");
     this.cancel();
@@ -57,6 +58,7 @@ export class BuildingSystem{
       el.style.top=((b.y+b.h/2)*this.world.cellSize)+"px";
       el.style.width=(b.w*this.world.cellSize-8)+"px";
       el.style.height=(b.h*this.world.cellSize-8)+"px";
+      el.style.zIndex=String(100+Math.round((b.y+b.h)*2));
       el.innerHTML=`<span class="world-building__roof"></span><span class="world-building__icon">${item.icon}</span><span class="world-building__label">${item.name}</span>`;
       layer.appendChild(el);
     }
