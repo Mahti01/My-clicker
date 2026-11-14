@@ -12,9 +12,11 @@ export class BuildingSystem{
   }
 
   bind(){
-    this.world.addEventListener("pointerdown",e=>{
+    this.world.el.addEventListener("pointerdown",e=>{
       if(!this.placement)return;
-      e.preventDefault();e.stopPropagation();
+      if(e.target!==this.world.renderer?.canvas)return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
       const cell=this.world.pointerToCell(e.clientX,e.clientY);
       if(cell&&this.canPlace(cell,this.selected))this.place(cell,this.selected);
       else if(cell)this.world.flashMessage("Здесь нельзя строить");
