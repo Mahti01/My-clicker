@@ -5,12 +5,13 @@ import {CameraController} from "./world/camera.js";
 import {WorldController} from "./world/world.js";
 import {BuildingSystem} from "./world/buildings.js";
 import {RoadSystem} from "./world/roads.js";
+import {VehicleSystem} from "./world/vehicles.js";
 import {Economy} from "./core/economy.js";
 
 const manager=new GameManager();window.gameManager=manager;
 initMenu(manager);initGameUI(manager);
 
-let camera=null,world=null,buildings=null,roads=null;
+let camera=null,world=null,buildings=null,roads=null,vehicles=null;
 function initWorld(){
   if(world)return;
   const worldEl=document.getElementById("world");
@@ -19,8 +20,9 @@ function initWorld(){
   const economy=new Economy(manager.state);
   buildings=new BuildingSystem(manager.state,economy,world);
   roads=new RoadSystem(manager.state,economy,world);
+  vehicles=new VehicleSystem(manager.state,world);
   world.setSystems(roads,buildings);
-  window.cityWorld={world,camera,buildings,roads};
+  window.cityWorld={world,camera,buildings,roads,vehicles};
 }
 window.addEventListener("game:shown",initWorld);
 
