@@ -1,3 +1,7 @@
+import { InputSystem } from "./input/input.js";
+import { CollisionSystem } from "./world/collision.js";
+import { Player } from "./player/player.js";
+
 const canvas=document.createElement("canvas");canvas.id="renderCanvas";document.getElementById("game").appendChild(canvas);
 const loading=document.getElementById("loading");
 const engine=new BABYLON.Engine(canvas,true,{preserveDrawingBuffer:false,stencil:true,antialias:true},true);
@@ -50,7 +54,7 @@ function tree(x,z,s=1){
 const shadowGenerator=new BABYLON.ShadowGenerator(1024,sun);shadowGenerator.useBlurExponentialShadowMap=true;shadowGenerator.blurKernel=16;
 for(const m of [...buildings,...scene.meshes.filter(m=>m.name==="Trunk"||m.name==="Crown")])shadowGenerator.addShadowCaster(m);
 
-const state={version:"0.1.0",camera:{alpha:camera.alpha,beta:camera.beta,radius:camera.radius,target:{x:0,y:0,z:0}}};
+const collision=new CollisionSystem(scene,buildings,48);\nconst player=new Player(scene,collision);\nfor(const m of player.shadowMeshes)shadowGenerator.addShadowCaster(m);\nconst input=new InputSystem(canvas);\n\nconst state={version:"0.2.0",camera:{alpha:camera.alpha,beta:camera.beta,radius:camera.radius,target:{x:0,y:0,z:0}}};
 function save(){state.camera={alpha:camera.alpha,beta:camera.beta,radius:camera.radius,target:{x:camera.target.x,y:camera.target.y,z:camera.target.z}};localStorage.setItem("city-tycoon-save",JSON.stringify(state))}
 function load(){try{const s=JSON.parse(localStorage.getItem("city-tycoon-save")||"null");if(s?.camera){camera.alpha=s.camera.alpha;camera.beta=s.camera.beta;camera.radius=s.camera.radius;camera.setTarget(new BABYLON.Vector3(s.camera.target.x,s.camera.target.target?.y??s.camera.target.y,s.camera.target.z))}}catch(e){console.warn("Save load failed",e)}}
 load();window.addEventListener("beforeunload",save);window.addEventListener("resize",()=>engine.resize());
