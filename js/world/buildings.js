@@ -53,13 +53,13 @@ export class BuildingSystem{
     for(const b of state.world?.buildings||[]){
       const item=this.catalog.find(x=>x.id===b.type);if(!item)continue;
       const el=document.createElement("div");
-      el.className="world-building";
+      el.className=`world-building world-building--${item.id}`;
       el.style.left=((b.x+b.w/2)*this.world.cellSize)+"px";
       el.style.top=((b.y+b.h/2)*this.world.cellSize)+"px";
       el.style.width=(b.w*this.world.cellSize-8)+"px";
       el.style.height=(b.h*this.world.cellSize-8)+"px";
       el.style.zIndex=String(100+Math.round((b.y+b.h)*2));
-      el.innerHTML=`<span class="world-building__roof"></span><span class="world-building__icon">${item.icon}</span><span class="world-building__label">${item.name}</span>`;
+      el.innerHTML=`<span class="world-building__roof"></span><span class="world-building__windows"></span><span class="world-building__icon">${item.icon}</span><span class="world-building__label">${item.name}</span>`;
       layer.appendChild(el);
     }
   }
