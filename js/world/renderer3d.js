@@ -43,7 +43,7 @@ export class CityRenderer3D{
     this.roadGroup=new THREE.Group();this.buildingGroup=new THREE.Group();this.decorGroup=new THREE.Group();this.vehicleGroup=new THREE.Group();
     this.worldGroup.add(this.roadGroup,this.buildingGroup,this.decorGroup,this.vehicleGroup);
 
-    this.previewMesh=null;this.cars=[];
+    this.previewMesh=null;this.cars=[];this.carMeshes=[];
     this.materials={};
     this.createLights();
     this.createCityBackdrop();
@@ -78,8 +78,6 @@ export class CityRenderer3D{
     const ground=new THREE.Mesh(g,m);ground.rotation.x=-Math.PI/2;ground.position.y=-.08;ground.receiveShadow=true;
     this.scene.add(ground);
 
-    const grid=new THREE.GridHelper(this.cols*this.cell,this.cols,0x92a98a,0x819b7b);
-    grid.position.y=.005;this.scene.add(grid);
   }
 
   resize(){
@@ -131,7 +129,10 @@ export class CityRenderer3D{
   road(r,roads){
     const s=this.cell,mat=new THREE.MeshStandardMaterial({color:0x343a3f,roughness:.92});
     const g=new THREE.Group();
-    const mesh=new THREE.Mesh(new THREE.BoxGeometry(s*1.02,.12,s*1.02),mat);mesh.position.y=.05;mesh.receiveShadow=true;g.add(mesh);
+    const sidewalkMat=new THREE.MeshStandardMaterial({color:0x8b8f8a,roughness:1});
+    const sidewalk=new THREE.Mesh(new THREE.BoxGeometry(s*1.12,.08,s*1.12),sidewalkMat);
+    sidewalk.position.y=.04;sidewalk.receiveShadow=true;g.add(sidewalk);
+    const mesh=new THREE.Mesh(new THREE.BoxGeometry(s*1.02,.13,s*1.02),mat);mesh.position.y=.12;mesh.receiveShadow=true;g.add(mesh);
     const lineMat=new THREE.MeshStandardMaterial({color:0xe7c76f,roughness:.7});
     const key=new Set(roads.map(a=>a.x+","+a.y));
     const has=(x,y)=>key.has(x+","+y);
@@ -178,6 +179,12 @@ export class CityRenderer3D{
     for(const b of buildings)this.buildingGroup.add(this.building(b));
 
     this.decorGroup.add(this.fountain());
+    [[-5,-2],[-2,-2],[2,-2],[5,-2]].forEach(([px,pz])=>{
+      const planter=this.makeBox(1.15,.28,1.15,0xb7a994);
+      planter.position.set(px,.16,pz);this.decorGroup.add(planter);
+      const shrub=new THREE.Mesh(new THREE.SphereGeometry(.42,12,8),new THREE.MeshStandardMaterial({color:0x47744d,roughness:1}));
+      shrub.position.set(px,.62,pz);shrub.castShadow=true;this.decorGroup.add(shrub);
+    });
     const trees=[[1,1,0],[5,1,1],[9,1,0],[15,1,1],[18,4,0],[1,7,1],[18,7,1],[2,12,0],[7,12,1],[13,12,0],[18,12,1]];
     trees.forEach(t=>this.decorGroup.add(this.tree(...t)));
     [[3,4],[6,4],[9,4],[12,4],[15,4],[3,10],[6,10],[9,10],[12,10],[15,10],[3,7],[16,7]].forEach(p=>this.decorGroup.add(this.lamp(...p)));
@@ -197,12 +204,22 @@ export class CityRenderer3D{
 
   setCars(cars){
     this.cars=cars||[];
-    while(this.vehicleGroup.children.length)this.vehicleGroup.remove(this.vehicleGroup.children[0]);
-    for(const car of this.cars){
+    while(this.carMeshes.length>this.cars.length){
+      const mesh=this.carMeshes.pop();
+      this.vehicleGroup.remove(mesh);
+    }
+    while(this.carMeshes.length<this.cars.length){
+      const index=this.carMeshes.length;
+      const car=this.cars[index];
       const g=new THREE.Group();
       const body=this.makeBox(1.05,.45,.62,car.type===1?0xd8ad55:car.type===2?0x718ba3:0xd36f68);body.position.y=.45;g.add(body);
       const top=this.makeBox(.55,.25,.5,0xb9d5dc);top.position.y=.72;g.add(top);
-      const {x,z}=this.cellToWorld(car.x-.5,car.y-.5);g.position.set(x,.05,z);g.rotation.y=-car.angle;this.vehicleGroup.add(g);
+      this.vehicleGroup.add(g);this.carMeshes.push(g);
+    }
+    for(let i=0;i<this.cars.length;i++){
+      const car=this.cars[i],g=this.carMeshes[i];
+      const {x,z}=this.cellToWorld(car.x-.5,car.y-.5);
+      g.position.set(x,.05,z);g.rotation.y=-car.angle;
     }
   }
 
