@@ -13,26 +13,32 @@ export class WorldController{
     if((state.world?.roads||[]).some(r=>r.x===x&&r.y===y))return true;
     return (state.world?.buildings||[]).some(b=>x>=b.x&&x<b.x+b.w&&y>=b.y&&y<b.y+b.h);
   }
+  areaAvailable(cell,item,state){
+    for(let y=0;y<item.h;y++)for(let x=0;x<item.w;x++){
+      const cx=cell.x+x,cy=cell.y+y;
+      if(!this.isInside(cx,cy)||this.isOccupied(cx,cy,state))return false;
+    }
+    return true;
+  }
   pointerToCell(clientX,clientY){
-    const rect=this.el.getBoundingClientRect();
-    const canvas=this.el.querySelector("#world-canvas");
-    const transform=canvas.style.transform.match(/translate3d\\(([-\\d.]+)px,\\s*([-\\d.]+)px,0\\) scale\\(([-\\d.]+)\\)/);
+    const rect=this.el.getBoundingClientRect(),canvas=this.el.querySelector("#world-canvas");
+    const transform=canvas.style.transform.match(/translate3d\(([-\d.]+)px,\s*([-\d.]+)px,0\)\s*scale\(([-\d.]+)\)/);
     const tx=transform?Number(transform[1]):0,ty=transform?Number(transform[2]):0,scale=transform?Number(transform[3]):1;
-    const localX=(clientX-rect.left-tx)/scale;
-    const localY=(clientY-rect.top-ty)/scale;
+    const localX=(clientX-rect.left-tx)/scale,localY=(clientY-rect.top-ty)/scale;
     const mapLeft=canvas.clientWidth/2-550,mapTop=canvas.clientHeight/2-380;
     const x=Math.floor((localX-mapLeft)/this.cellSize),y=Math.floor((localY-mapTop)/this.cellSize);
     return this.isInside(x,y)?{x,y}:null;
   }
   showPreview(item){
-    this.previewItem=item;this.layers.preview.innerHTML="";
+    this.clearPreview();this.previewItem=item;
     const el=document.createElement("div");el.className="build-preview";el.textContent=item.icon;
     el.style.width=(item.w*this.cellSize-8)+"px";el.style.height=(item.h*this.cellSize-8)+"px";
     this.layers.preview.appendChild(el);
-    const move=e=>{if(!this.buildMode)return;const c=this.pointerToCell(e.clientX,e.clientY);if(!c)return;
+    const move=e=>{
+      if(!this.buildMode)return;
+      const c=this.pointerToCell(e.clientX,e.clientY);if(!c)return;
       el.style.left=(c.x*this.cellSize+4)+"px";el.style.top=(c.y*this.cellSize+4)+"px";
-      const ok=!this.isOccupied(c.x,c.y,this.state.get())&&this.isInside(c.x+item.w-1,c.y+item.h-1);
-      el.classList.toggle("is-invalid",!ok);
+      el.classList.toggle("is-invalid",!this.areaAvailable(c,item,this.state.get()));
     };
     this._previewMove=move;this.el.addEventListener("pointermove",move);
   }
