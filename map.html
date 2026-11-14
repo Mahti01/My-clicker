@@ -65,9 +65,44 @@ function updateUI(){const t=totals();document.getElementById('money').textConten
 function renderBuildBar(){const el=document.getElementById('buildbar');el.innerHTML='';if(activeTab!=='build'){el.style.display='none';return}el.style.display='flex';Object.entries(TYPES).forEach(([id,t])=>{const b=document.createElement('button');b.className=id===selectedType?'selected':'';b.innerHTML='<b>'+t.icon+'</b>'+t.name+' · '+money(t.cost)+' ₽';b.onclick=()=>{selectedType=id;renderBuildBar();draw()};el.appendChild(b)})}
 function toast(s){const el=document.getElementById('toast');el.textContent=s;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),1200)}
 function selectPlot(i){selectedPlot=i;draw();if(activeTab==='city'){const b=state.buildings[i];const box=document.getElementById('citybox');box.style.display='block';box.innerHTML=b?'<b>'+TYPES[b.type].icon+' '+TYPES[b.type].name+' '+b.level+' ур.</b><div>Доход: +'+TYPES[b.type].income+' / сек · Жители: '+TYPES[b.type].pop+'</div>':'<b>Свободный участок</b><div>Выберите здание в строительстве.</div>'}}
-canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,moved:false};canvas.setPointerCapture?.(e.pointerId)});
-canvas.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>6)drag.moved=true;cam.x=drag.cx+dx;cam.y=drag.cy+dy;draw()});
-canvas.addEventListener('pointerup',e=>{if(!drag)return;if(!drag.moved){let best=-1,bd=999;plots.forEach((v,i)=>{const q=iso(v[0],v[1]),s=Math.min(W/12,H/17)*cam.z,w=s*1.55,h=s*.73;const d=Math.abs((e.clientX-q.x)/w)+Math.abs((e.clientY-q.y)/h);if(d<1&&d<bd){bd=d;best=i}});if(best>=0){selectPlot(best);if(activeTab==='build'&&!state.buildings[best]){const t=TYPES[selectedType];if(state.money<t.cost){toast('Не хватает денег');}else{state.money-=t.cost;state.buildings[best]={type:selectedType,level:1};state.xp+=t.xp;while(state.xp>=100){state.xp-=100;state.level++;toast('🎉 Новый уровень!')}save();toast(t.icon+' '+t.name+' построен');draw()}}}}drag=null});
+let drag=null;
+canvas.addEventListener('pointerdown',e=>{
+  drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,moved:false};
+  canvas.setPointerCapture?.(e.pointerId);
+});
+canvas.addEventListener('pointermove',e=>{
+  if(!drag)return;
+  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(Math.hypot(dx,dy)>6) drag.moved=true;
+  // ВАЖНО: участки карты не двигаются от касания.
+  // Перемещение карты отключено; drag оставлен только для определения свайпа.
+});
+canvas.addEventListener('pointerup',e=>{
+  if(!drag)return;
+  if(!drag.moved){
+    let best=-1,bd=999;
+    plots.forEach((v,i)=>{
+      const q=iso(v[0],v[1]),s=Math.min(W/12,H/17)*cam.z,w=s*1.55,h=s*.73;
+      const d=Math.abs((e.clientX-q.x)/w)+Math.abs((e.clientY-q.y)/h);
+      if(d<1&&d<bd){bd=d;best=i}
+    });
+    if(best>=0){
+      selectPlot(best);
+      if(activeTab==='build'&&!state.buildings[best]){
+        const t=TYPES[selectedType];
+        if(state.money<t.cost) toast('Не хватает денег');
+        else{
+          state.money-=t.cost;
+          state.buildings[best]={type:selectedType,level:1};
+          state.xp+=t.xp;
+          while(state.xp>=100){state.xp-=100;state.level++;toast('🎉 Новый уровень!')}
+          save();toast(t.icon+' '+t.name+' построен');draw();
+        }
+      }
+    }
+  }
+  drag=null;
+});
 canvas.addEventListener('wheel',e=>{e.preventDefault();cam.z=Math.max(.72,Math.min(1.55,cam.z*(e.deltaY<0?1.08:.92)));draw()},{passive:false});
 document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>{activeTab=btn.dataset.tab;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b===btn));document.getElementById('citybox').style.display=activeTab==='city'?'block':'none';if(activeTab==='stats')toast('Заработано: '+money(state.totalEarned)+' монет');if(activeTab==='settings')toast('Настройки: управление картой пальцем');renderBuildBar();draw()});
 setInterval(()=>{const t=totals();if(t.income>0){state.money+=t.income;state.totalEarned+=t.income;save();updateUI()}},1000);
