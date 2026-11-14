@@ -19,6 +19,11 @@ body{overscroll-behavior:none}
 .reset{position:absolute;right:14px;bottom:82px;border:0;background:rgba(255,255,255,.9);padding:7px 10px;border-radius:10px;font-size:10px;pointer-events:auto}
 .panel{position:absolute;right:14px;top:195px;width:226px;background:rgba(255,255,255,.96);border-radius:16px;padding:13px;box-shadow:0 12px 35px rgba(28,45,42,.18);display:none;pointer-events:auto;font-size:12px}.panel.show{display:block}.panel h3{margin:0 0 8px;font-size:15px}.panel p{margin:5px 0;color:#68736f;line-height:1.35}
 @media(max-width:700px){.top{left:9px;right:9px;top:9px}.card{min-width:72px;padding:7px 9px}.card b{font-size:13px}.level{padding:8px 10px}.tabs{right:9px;top:102px;grid-template-columns:repeat(2,88px);gap:5px}.tab{padding:7px 8px;font-size:10px}.bottom{left:9px;right:9px;bottom:9px}.income{min-width:125px;padding:9px}.builds{max-width:calc(100% - 135px)}.build{min-width:88px}.reset{bottom:72px;right:9px}}
+
+.building-card{margin-top:10px;padding:10px;border-radius:12px;background:#f4f6f3;border:1px solid #e4e9e5}
+.building-card h4{margin:0 0 6px;font-size:13px}.mini{font-size:10px;color:#68736f;margin:3px 0}
+.action{width:100%;border:0;border-radius:10px;padding:9px;margin-top:7px;background:#17231f;color:#fff;font-size:11px}.action:disabled{opacity:.4}
+.quest{padding:8px 0;border-bottom:1px solid #e8ece9}.quest:last-child{border:0}.quest b{font-size:11px}.quest small{display:block;color:#68736f;margin-top:3px}
 </style>
 </head>
 <body>
@@ -56,7 +61,9 @@ const types=[
 {id:"park",name:"Парк",ico:"🌳",cost:600,income:1,pop:20,xp:45,color:"#83a777",h:28},
 {id:"cafe",name:"Кафе",ico:"☕",cost:750,income:11,pop:5,xp:50,color:"#b88b67",h:52}
 ];
-let state=JSON.parse(localStorage.getItem("city_builder")||"null")||{money:1000,pop:0,xp:0,level:1,buildings:[]};
+let state=JSON.parse(localStorage.getItem("city_builder")||"null")||{money:1000,pop:0,xp:0,level:1,buildings:[],totalEarned:0,quests:{home:false,people:false,money:false}};
+state.totalEarned=state.totalEarned||0; state.quests=state.quests||{home:false,people:false,money:false};
+let selectedBuilding=null;
 let cam={x:W/2,y:H/2+30,z:1},drag=null,selected=null;
 function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(dpr,0,0,dpr,0,0);draw()}
 function iso(x,y){return{x:cam.x+(x-y)*45*cam.z,y:cam.y+(x+y)*22.5*cam.z}}
@@ -87,19 +94,27 @@ ctx.fillStyle="#e9f1e8";for(let yy=0;yy<2;yy++){ctx.fillRect(-17*s,-h*.47+yy*17*
 ctx.font=Math.max(19,27*s)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(t.ico,0,-h*.68);ctx.restore();
 }
 function draw(){ctx.clearRect(0,0,W,H);drawGround();drawRoads();state.buildings.slice().sort((a,b)=>a.x+a.y-(b.x+b.y)).forEach(drawBuilding)}
+function findBuildingAt(px,py){
+let g=grid(px,py),best=null;
+for(let b of state.buildings){if(b.x===g.x&&b.y===g.y)best=b}
+return best;
+}
 function fmt(n){return Math.floor(n).toLocaleString("ru-RU")}
-function rate(){return state.buildings.reduce((a,b)=>a+(types.find(t=>t.id===b.type)?.income||0),0)}
+function rate(){return state.buildings.reduce((a,b)=>{let t=types.find(t=>t.id===b.type);return a+(t?.income||0)*(1+(b.level-1)*0.35)},0)}
+function upgradeCost(b){let t=types.find(x=>x.id===b.type);return Math.floor(t.cost*(1+b.level*.75))}
+function buildingInfo(b){let t=types.find(x=>x.id===b.type);return {t,income:Math.floor(t.income*(1+(b.level-1)*.35)),cost:upgradeCost(b)}}
 function save(){localStorage.setItem("city_builder",JSON.stringify(state))}
 function render(){
 money.textContent=fmt(state.money);pop.textContent=fmt(state.pop);rateEl.textContent="+"+fmt(rate())+"/сек";income.textContent=fmt(rate())+" монет / сек";level.textContent="Город "+state.level;xp.textContent=fmt(state.xp)+" / "+state.level*100+" XP";
 builds.innerHTML="";
-types.forEach(t=>{let b=document.createElement("button");b.className="build"+(selected===t.id?" active":"");b.disabled=state.money<t.cost;b.innerHTML='<div class="ico">'+t.ico+'</div><b>'+t.name+'</b><span>'+fmt(t.cost)+' 💰 · +'+t.income+'/сек</span>';b.onclick=()=>{selected=selected===t.id?null:t.id;hint.textContent=selected?"Нажмите на клетку":"Выберите здание";hint.classList.add("show");setTimeout(()=>hint.classList.remove("show"),1300);render()};builds.appendChild(b)});
+types.forEach(t=>{let b=document.createElement("button");b.className="build"+(selected===t.id?" active":"");b.disabled=state.money<t.cost;b.innerHTML='<div class="ico">'+t.ico+'</div><b>'+t.name+'</b><span>'+fmt(t.cost)+' 💰 · +'+t.income+'/сек</span>';b.onclick=()=>{selected=selected===t.id?null:t.id;selectedBuilding=null;hint.textContent=selected?"Нажмите на клетку":"Выберите здание";hint.classList.add("show");setTimeout(()=>hint.classList.remove("show"),1300);render()};builds.appendChild(b)});
 save();draw()
 }
 function showPanel(name){
 if(name==="build"){panel.innerHTML="<h3>🏗️ Строительство</h3><p>Выберите здание снизу и нажмите на свободную клетку.</p><p>Перетаскивайте карту для обзора города, колесом мыши или жестом меняйте масштаб.</p>"}
 if(name==="city"){panel.innerHTML="<h3>🏙️ Ваш город</h3><p>Уровень: <b>"+state.level+"</b></p><p>Жителей: <b>"+fmt(state.pop)+"</b></p><p>Построено: <b>"+state.buildings.length+"</b></p>"}
-if(name==="stats"){panel.innerHTML="<h3>📊 Статистика</h3><p>Доход: <b>"+fmt(rate())+" 💰/сек</b></p><p>Заработано зданий: <b>"+fmt(state.buildings.length)+"</b></p><p>XP: <b>"+fmt(state.xp)+"</b></p>"}
+if(name==="stats"){panel.innerHTML="<h3>📊 Статистика</h3><p>Доход: <b>"+fmt(rate())+" 💰/сек</b></p><p>Зданий: <b>"+fmt(state.buildings.length)+"</b></p><p>XP: <b>"+fmt(state.xp)+"</b></p><p>Всего заработано: <b>"+fmt(state.totalEarned)+" 💰</b></p>"}
+if(name==="city"){panel.innerHTML="<h3>🏙️ Ваш город</h3><p>Уровень: <b>"+state.level+"</b></p><p>Жителей: <b>"+fmt(state.pop)+"</b></p><p>Построено: <b>"+state.buildings.length+"</b></p><div class='quest'><b>🏠 Первые дома</b><small>"+(state.quests.home?"Выполнено · +500 💰":"Постройте 5 домов · награда 500 💰")+"</small></div><div class='quest'><b>👥 Растущий город</b><small>"+(state.quests.people?"Выполнено · +1 000 💰":"Достигните 100 жителей · награда 1 000 💰")+"</small></div><div class='quest'><b>💰 Крупный оборот</b><small>"+(state.quests.money?"Выполнено · +2 500 💰":"Заработайте 10 000 💰 · награда 2 500 💰")+"</small></div>"}
 if(name==="settings"){panel.innerHTML="<h3>⚙️ Настройки</h3><p>Прогресс хранится локально на устройстве.</p><p>Кнопка «Сбросить» полностью начинает город заново.</p>"}
 panel.classList.add("show")
 }
@@ -107,20 +122,51 @@ document.querySelectorAll(".tab").forEach(btn=>btn.onclick=()=>{document.querySe
 canvas.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,moved:false};canvas.setPointerCapture(e.pointerId)});
 canvas.addEventListener("pointermove",e=>{if(drag){let dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>5)drag.moved=true;cam.x=drag.cx+dx;cam.y=drag.cy+dy;draw()}});
 canvas.addEventListener("pointerup",e=>{
-if(!drag||drag.moved){drag=null;return}let g=grid(e.clientX,e.clientY);drag=null;if(!selected)return;
+if(!drag||drag.moved){drag=null;return}
+let g=grid(e.clientX,e.clientY);drag=null;
+if(!selected){selectedBuilding=findBuildingAt(e.clientX,e.clientY);showBuildingPanel();return;}
 if(Math.abs(g.x)>9||Math.abs(g.y)>9){toast("Можно строить только в пределах города");return}
 if(state.buildings.some(b=>b.x===g.x&&b.y===g.y)){toast("Эта клетка занята");return}
 let t=types.find(x=>x.id===selected);if(state.money<t.cost){toast("Недостаточно денег");return}
 state.money-=t.cost;state.pop+=t.pop;state.xp+=t.xp;let need=state.level*100;
 if(state.xp>=need){state.xp-=need;state.level++;toast("🎉 Новый уровень! Город "+state.level)}
-state.buildings.push({type:t.id,x:g.x,y:g.y});selected=null;render();
+state.buildings.push({type:t.id,x:g.x,y:g.y,level:1});selected=null;selectedBuilding=null;render();
 });
+canvas.addEventListener("dblclick",e=>{let b=findBuildingAt(e.clientX,e.clientY);if(b){selectedBuilding=b;selected=null;showBuildingPanel()}});
 canvas.addEventListener("wheel",e=>{e.preventDefault();let old=cam.z;cam.z=Math.max(.65,Math.min(1.7,cam.z*(e.deltaY<0?1.1:.9)));let mx=e.clientX,my=e.clientY;cam.x=mx+(cam.x-mx)*cam.z/old;cam.y=my+(cam.y-my)*cam.z/old;draw()},{passive:false});
 let toastTimer;function toast(t){hint.textContent=t;hint.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>hint.classList.remove("show"),1500)}
 reset.onclick=()=>{if(confirm("Начать город заново?")){localStorage.removeItem("city_builder");location.reload()}};
 const money=document.getElementById("money"),pop=document.getElementById("pop"),rateEl=document.getElementById("rate"),income=document.getElementById("income"),level=document.getElementById("level"),xp=document.getElementById("xp"),builds=document.getElementById("builds"),hint=document.getElementById("hint"),panel=document.getElementById("panel"),reset=document.getElementById("reset");
+function showBuildingPanel(){
+if(!selectedBuilding){panel.classList.remove("show");return}
+let {t,income,cost}=buildingInfo(selectedBuilding);
+panel.innerHTML='<h3>'+t.ico+' '+t.name+'</h3>'+
+'<div class="building-card"><h4>Уровень '+selectedBuilding.level+'</h4>'+
+'<div class="mini">Доход: +'+income+' 💰/сек</div>'+
+'<div class="mini">Население: +'+t.pop+'</div>'+
+'<div class="mini">Следующее улучшение: '+fmt(cost)+' 💰</div>'+
+'<button class="action" id="upgrade" '+(state.money<cost?'disabled':'')+'>⬆️ Улучшить</button>'+
+'<button class="action" id="closeBuild" style="background:#e8ece9;color:#17231f">Закрыть</button></div>';
+panel.classList.add("show");
+document.getElementById("upgrade").onclick=()=>{
+ if(state.money<cost)return toast("Недостаточно денег");
+ state.money-=cost;selectedBuilding.level++;state.xp+=Math.floor(t.xp*.6);save();render();showBuildingPanel();toast("⬆️ Здание улучшено до уровня "+selectedBuilding.level);
+};
+document.getElementById("closeBuild").onclick=()=>{selectedBuilding=null;panel.classList.remove("show")};
+}
+function updateQuests(){
+let q=state.quests;
+if(!q.home&&state.buildings.filter(b=>b.type==="house").length>=5){q.home=true;state.money+=500;toast("🏠 Задание выполнено: +500 💰")}
+if(!q.people&&state.pop>=100){q.people=true;state.money+=1000;toast("👥 100 жителей: +1 000 💰")}
+if(!q.money&&state.totalEarned>=10000){q.money=true;state.money+=2500;toast("💰 Заработано 10 000: +2 500 💰")}
+}
 let last=performance.now(),lastSave=performance.now();
-function loop(now){let dt=(now-last)/1000;last=now;state.money+=rate()*dt;if(now-lastSave>1500){save();lastSave=now}render();requestAnimationFrame(loop)}
+function loop(now){
+let dt=(now-last)/1000;last=now;
+let earned=rate()*dt;state.money+=earned;state.totalEarned+=earned;updateQuests();
+if(now-lastSave>2000){save();lastSave=now}
+render();requestAnimationFrame(loop)
+}
 resize();render();showPanel("build");requestAnimationFrame(loop);
 </script>
 </body>
