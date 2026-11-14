@@ -300,8 +300,34 @@ for(let i=0;i<8;i++){
 
 fountain();
 ctx.restore();updateUI()}
-function updateUI(){const t=totals();$('menuMoney').textContent=fmt(state.money);$('menuPop').textContent=fmt(t.pop);$('rate').textContent='+'+fmt(t.income)+'/сек';$('income').textContent=fmt(t.income)+' монет / сек';$('level').textContent='Город '+state.level;$('xp').textContent=fmt(state.xp)+' / '+state.level*100+' XP';renderBuildBar()}
-function renderBuildBar(){const el=$('buildbar');el.innerHTML='';if(activePanel!=='build'){el.style.display='none';return}el.style.display='flex';Object.entries(TYPES).forEach(([id,t])=>{const b=document.createElement('button');b.className='build'+(id===selectedType?' active':'');b.disabled=state.money<t.cost;b.innerHTML='<i>'+t.icon+'</i><b>'+t.name+'</b><small>'+fmt(t.cost)+' 💰 · +'+t.income+'/сек</small>';b.onclick=()=>{selectedType=id;renderBuildBar()};el.appendChild(b)})}
+function updateUI(){const t=totals();$('menuMoney').textContent=fmt(state.money);$('menuPop').textContent=fmt(t.pop);$('rate').textContent='+'+fmt(t.income)+'/сек';$('income').textContent=fmt(t.income)+' монет / сек';$('level').textContent='Город '+state.level;$('xp').textContent=fmt(state.xp)+' / '+state.level*100+' XP';updateBuildAvailability()}
+function updateBuildAvailability(){
+  const el=$('buildbar');
+  if(activePanel!=='build'){el.style.display='none';return}
+  el.style.display='flex';
+  if(el.children.length!==Object.keys(TYPES).length){renderBuildBar();return}
+  el.querySelectorAll('.build').forEach(b=>{
+    const id=b.dataset.type,t=TYPES[id];
+    if(!t)return;
+    b.disabled=state.money<t.cost;
+    b.classList.toggle('active',id===selectedType);
+  });
+}
+function renderBuildBar(){
+  const el=$('buildbar');
+  el.innerHTML='';
+  if(activePanel!=='build'){el.style.display='none';return}
+  el.style.display='flex';
+  Object.entries(TYPES).forEach(([id,t])=>{
+    const b=document.createElement('button');
+    b.className='build'+(id===selectedType?' active':'');
+    b.dataset.type=id;
+    b.disabled=state.money<t.cost;
+    b.innerHTML='<i>'+t.icon+'</i><b>'+t.name+'</b><small>'+fmt(t.cost)+' 💰 · +'+t.income+'/сек</small>';
+    b.onclick=()=>{selectedType=id;updateBuildAvailability()};
+    el.appendChild(b);
+  });
+}
 function toast(s){const e=$('toast');e.textContent=s;e.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.classList.remove('show'),1300)}
 function upgradeCost(b){return Math.floor(TYPES[b.type].cost*(1.65**b.level))}
 function closeSidePanel(e){if(e){e.preventDefault();e.stopPropagation()}const p=$('sidePanel');p.classList.remove('show');p.style.display='none';}
