@@ -19,12 +19,18 @@ export class CityRenderer3D{
 
     this.controls=new OrbitControls(this.camera,this.canvas);
     this.controls.enableDamping=true;
+    this.controls.enablePan=true;
+    this.controls.screenSpacePanning=true;
+    this.controls.rotateSpeed=.65;
+    this.controls.zoomSpeed=.9;
+    this.controls.panSpeed=.8;
     this.controls.dampingFactor=.08;
     this.controls.minDistance=22;
-    this.controls.maxDistance=65;
+    this.controls.maxDistance=70;
     this.controls.maxPolarAngle=Math.PI/2.08;
     this.controls.minPolarAngle=.38;
     this.controls.target.set(0,0,0);
+    this.controls.addEventListener("change",()=>this.invalidate=true);
 
     this.raycaster=new THREE.Raycaster();
     this.pointer=new THREE.Vector2();
@@ -40,6 +46,7 @@ export class CityRenderer3D{
     this.previewMesh=null;this.cars=[];
     this.materials={};
     this.createLights();
+    this.createCityBackdrop();
     this.createGround();
     this.resize();
     window.addEventListener("resize",()=>this.resize());
@@ -55,6 +62,14 @@ export class CityRenderer3D{
     sun.shadow.mapSize.set(2048,2048);
     sun.shadow.camera.left=-38;sun.shadow.camera.right=38;sun.shadow.camera.top=38;sun.shadow.camera.bottom=-38;
     this.scene.add(sun);
+  }
+
+  createCityBackdrop(){
+    const ring=new THREE.Mesh(
+      new THREE.RingGeometry(54,58,64),
+      new THREE.MeshStandardMaterial({color:0x5d7358,roughness:1,side:THREE.DoubleSide})
+    );
+    ring.rotation.x=-Math.PI/2;ring.position.y=-.06;this.scene.add(ring);
   }
 
   createGround(){
@@ -154,6 +169,7 @@ export class CityRenderer3D{
 
   render(){
     const state=this.state.get();
+    this.invalidate=false;
     this.clear(this.roadGroup);this.clear(this.buildingGroup);this.clear(this.decorGroup);
     const roads=state.world?.roads||[];
     for(const r of roads)this.roadGroup.add(this.road(r,roads));
