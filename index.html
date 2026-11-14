@@ -98,7 +98,7 @@ function poly(points,fill,stroke){ctx.beginPath();points.forEach((p,i)=>i?ctx.li
 function tree(x,y,k=.6){ctx.fillStyle='#6b4b38';ctx.fillRect(x-2,y+7,4,19*k);ctx.fillStyle='#4f8154';ctx.beginPath();ctx.arc(x,y,14*k,0,Math.PI*2);ctx.fill();ctx.fillStyle='#76a45f';ctx.beginPath();ctx.arc(x-7*k,y-4,9*k,0,Math.PI*2);ctx.arc(x+7*k,y-3,10*k,0,Math.PI*2);ctx.fill()}
 function lamp(x,y){ctx.strokeStyle='#50483f';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x,y+16);ctx.lineTo(x,y-9);ctx.stroke();ctx.fillStyle='#f5d78b';ctx.beginPath();ctx.arc(x,y-11,5,0,Math.PI*2);ctx.fill()}
 function building(x,y,type,level){
- const t=TYPES[type], sc=Math.min(W/16,H/22)/10.5;
+ const t=TYPES[type], sc=Math.min(W/16,H/22)/28;
  if(type==='park'){
   ctx.fillStyle='rgba(36,48,36,.22)';ctx.beginPath();ctx.ellipse(x+4,y+15,42*sc,13*sc,0,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#91bb78';ctx.beginPath();ctx.ellipse(x,y,46*sc,25*sc,0,0,Math.PI*2);ctx.fill();
@@ -219,7 +219,7 @@ function crosswalk(x,y,horizontal=true){
 grid.slice(1,-1).forEach(v=>{crosswalk(v,-1.5);crosswalk(v,1.5);crosswalk(-1.5,v,false);crosswalk(1.5,v,false)});
 
 function plotCard(v,i){
- const q=iso(v[0],v[1]),w=s*1.38,h=s*.64;
+ const q=iso(v[0],v[1]),w=s*2.05,h=s*.9;
  poly([{x:q.x,y:q.y-h},{x:q.x+w,y:q.y},{x:q.x,y:q.y+h},{x:q.x-w,y:q.y}], '#a8cc8b','#789766');
  ctx.fillStyle='rgba(255,255,255,.18)';
  ctx.beginPath();ctx.ellipse(q.x,q.y+3,w*.72,h*.36,0,0,Math.PI*2);ctx.fill();
