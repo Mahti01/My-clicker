@@ -26,15 +26,7 @@ export class WorldController{
   }
 
   pointerToCell(clientX,clientY){
-    const rect=this.el.getBoundingClientRect(),canvas=this.el.querySelector("#world-canvas");
-    const transform=canvas.style.transform.match(/translate3d\(([-\d.]+)px,\s*([-\d.]+)px,0\)\s*scale\(([-\d.]+)\)/);
-    const tx=transform?Number(transform[1]):0,ty=transform?Number(transform[2]):0,scale=transform?Number(transform[3]):1;
-    const localX=(clientX-rect.left)/scale;
-    const localY=(clientY-rect.top)/scale;
-    const tw=64,th=32,ox=550,oy=58;
-    const dx=(localX-ox)/(tw/2),dy=(localY-oy)/(th/2);
-    const x=Math.floor((dx+dy)/2),y=Math.floor((dy-dx)/2);
-    return this.isInside(x,y)?{x,y}:null;
+    return this.renderer?.screenToCell(clientX,clientY)||null;
   }
 
   showPreview(item){
