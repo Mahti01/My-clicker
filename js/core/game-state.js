@@ -1,16 +1,9 @@
-const STORAGE_KEY="city-economy-save-v3";
+const STORAGE_KEY="city-economy-save-v4";
 
 const STARTER_BUILDINGS=[
-  {id:"starter-house-1",type:"house",x:2,y:2,w:2,h:2},
-  {id:"starter-house-2",type:"house",x:6,y:2,w:2,h:2},
-  {id:"starter-shop-1",type:"shop",x:12,y:2,w:2,h:2},
-  {id:"starter-shop-2",type:"shop",x:16,y:2,w:2,h:2},
-  {id:"starter-office-1",type:"office",x:2,y:8,w:2,h:3},
-  {id:"starter-house-3",type:"house",x:6,y:8,w:2,h:2},
-  {id:"starter-shop-3",type:"shop",x:12,y:8,w:2,h:2},
-  {id:"starter-villa-1",type:"villa",x:16,y:8,w:3,h:2},
-  {id:"starter-house-4",type:"house",x:4,y:11,w:2,h:2},
-  {id:"starter-office-2",type:"office",x:9,y:11,w:2,h:3}
+  {id:"starter-house-1",type:"house",x:4,y:3,w:2,h:2},
+  {id:"starter-shop-1",type:"shop",x:12,y:3,w:2,h:2},
+  {id:"starter-office-1",type:"office",x:8,y:9,w:2,h:3}
 ];
 
 const STARTER_ROADS=[
@@ -33,23 +26,15 @@ function clone(value){return JSON.parse(JSON.stringify(value));}
 
 function ensureStarterWorld(data){
   const world=data.world||{};
-  const buildings=Array.isArray(world.buildings)?world.buildings:[];
-  const roads=Array.isArray(world.roads)?world.roads:[];
-  if(buildings.length>=STARTER_BUILDINGS.length&&roads.length>=STARTER_ROADS.length)return data;
-
-  const buildingKeys=new Set(buildings.map(b=>b.x+","+b.y));
-  const mergedBuildings=[...buildings];
-  for(const b of STARTER_BUILDINGS){
-    if(!buildingKeys.has(b.x+","+b.y))mergedBuildings.push(clone(b));
-  }
-
-  const roadKeys=new Set(roads.map(r=>r.x+","+r.y));
-  const mergedRoads=[...roads];
-  for(const road of STARTER_ROADS){
-    if(!roadKeys.has(road.x+","+road.y))mergedRoads.push(clone(road));
-  }
-
-  return {...data,world:{...world,buildings:mergedBuildings,roads:mergedRoads,vehicles:world.vehicles||[]}};
+  return {
+    ...data,
+    world:{
+      ...world,
+      buildings:Array.isArray(world.buildings)?world.buildings:[],
+      roads:Array.isArray(world.roads)?world.roads:[],
+      vehicles:Array.isArray(world.vehicles)?world.vehicles:[]
+    }
+  };
 }
 
 export class GameState{
