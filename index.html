@@ -181,7 +181,6 @@ ctx.save();
 ctx.translate(W/2+cam.x,H/2+cam.y);ctx.scale(cam.z,cam.z);ctx.translate(-W/2,-H/2);
 
 const s=Math.min(W/16,H/22), roadW=Math.max(18,s*.62);
-cityBackdrop();
 function worldLine(a,b,c,d,width,color){
   const p=iso(a,b),q=iso(c,d);
   ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';
