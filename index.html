@@ -176,7 +176,37 @@ function drawDistrictDecor(){
 function draw(){
 ctx.clearRect(0,0,W,H);clampCam();
 ctx.fillStyle='#7fa36f';ctx.fillRect(0,0,W,H);
-ctx.save();ctx.translate(W/2+cam.x,H/2+cam.y);ctx.scale(cam.z,cam.z);ctx.translate(-W/2,-H/2);
+
+function cityBlock(a,b,w,h,c,roof){
+ const p=iso(a,b);
+ const bw=Math.max(24,s*w), bh=Math.max(18,s*h);
+ ctx.fillStyle='rgba(39,49,42,.16)';ctx.beginPath();ctx.ellipse(p.x+4,p.y+bh*.42,bw*.48,5,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle=c;ctx.fillRect(p.x-bw/2,p.y-bh/2,bw,bh);
+ poly([{x:p.x-bw/2,y:p.y-bh/2},{x:p.x,y:p.y-bh/2-s*.28},{x:p.x+bw/2,y:p.y-bh/2},{x:p.x+bw/2,y:p.y-bh/2+3},{x:p.x,y:p.y-bh/2+s*.28},{x:p.x-bw/2,y:p.y-bh/2+3}],roof,'#56534d');
+ ctx.fillStyle='#b9d5d6';
+ const cols=Math.max(2,Math.floor(w/1.5));
+ for(let i=0;i<cols;i++){
+   const wx=p.x-bw*.38+i*(bw*.76/Math.max(1,cols-1));
+   ctx.fillRect(wx-3,p.y-bh*.16,6,7);
+   ctx.fillRect(wx-3,p.y+bh*.08,6,7);
+ }
+}
+function cityBackdrop(){
+ // quiet outer city ring: low-rise blocks, trees and small commercial buildings
+ const blocks=[
+  [-10,-8,2.7,1.9,'#c8c0ae','#756f68'],[-6,-9,2.2,1.5,'#d6c9b4','#696661'],
+  [-1,-9,2.5,1.8,'#bfc9c4','#626b68'],[4,-9,2.8,1.6,'#d8b69e','#71645c'],[9,-8,2.5,1.8,'#c8c6b8','#656763'],
+  [-10,-3,2.2,1.6,'#b8c8c2','#666e6a'],[9,-3,2.7,1.8,'#d4c1a8','#71675f'],
+  [-10,3,2.5,1.8,'#d3b29e','#655d58'],[9,3,2.3,1.6,'#c4cbc0','#666b63'],
+  [-9,8,2.8,1.8,'#c5bcae','#6a665f'],[-5,9,2.4,1.6,'#d8c7ad','#756d62'],
+  [0,9,2.6,1.7,'#bfc7c4','#656b68'],[5,9,2.4,1.6,'#d5b49d','#70625a'],[9,8,2.7,1.8,'#c7c9bc','#646760']
+ ];
+ blocks.forEach(v=>cityBlock(...v));
+ const trees=[[ -8,-7],[-4,-8],[2,-8],[7,-8],[-9,-1],[9,-1],[-9,6],[9,6],[-7,8],[3,8],[7,9]];
+ trees.forEach(([a,b])=>{const p=iso(a,b);tree(p.x,p.y,.48)});
+}
+ctx.save();
+cityBackdrop();ctx.translate(W/2+cam.x,H/2+cam.y);ctx.scale(cam.z,cam.z);ctx.translate(-W/2,-H/2);
 
 const s=Math.min(W/16,H/22), roadW=Math.max(18,s*.62);
 function worldLine(a,b,c,d,width,color){
