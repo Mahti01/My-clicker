@@ -43,7 +43,7 @@ export class CityRenderer3D{
     this.roadGroup=new THREE.Group();this.buildingGroup=new THREE.Group();this.decorGroup=new THREE.Group();this.vehicleGroup=new THREE.Group();
     this.worldGroup.add(this.roadGroup,this.buildingGroup,this.decorGroup,this.vehicleGroup);
 
-    this.previewMesh=null;this.cars=[];this.carMeshes=[];
+    this.previewMesh=null;this.buildGrid=null;this.cars=[];this.carMeshes=[];
     this.materials={};
     this.createLights();
     this.createCityBackdrop();
@@ -220,6 +220,29 @@ export class CityRenderer3D{
       const car=this.cars[i],g=this.carMeshes[i];
       const {x,z}=this.cellToWorld(car.x-.5,car.y-.5);
       g.position.set(x,.05,z);g.rotation.y=-car.angle;
+    }
+  }
+
+  setBuildGridVisible(visible){
+    if(visible){
+      if(this.buildGrid)return;
+      this.buildGrid=new THREE.Group();
+      const mat=new THREE.MeshBasicMaterial({color:0xd8b47a,transparent:true,opacity:.12,depthWrite:false});
+      const lineMat=new THREE.LineBasicMaterial({color:0xf0d28b,transparent:true,opacity:.22});
+      const halfX=this.cols*this.cell/2,halfZ=this.rows*this.cell/2;
+      for(let x=0;x<=this.cols;x++){
+        const xx=-halfX+x*this.cell;
+        const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(xx,.035,-halfZ),new THREE.Vector3(xx,.035,halfZ)]);
+        this.buildGrid.add(new THREE.Line(g,lineMat));
+      }
+      for(let y=0;y<=this.rows;y++){
+        const zz=-halfZ+y*this.cell;
+        const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-halfX,.035,zz),new THREE.Vector3(halfX,.035,zz)]);
+        this.buildGrid.add(new THREE.Line(g,lineMat));
+      }
+      this.scene.add(this.buildGrid);
+    }else if(this.buildGrid){
+      this.scene.remove(this.buildGrid);this.buildGrid=null;
     }
   }
 
