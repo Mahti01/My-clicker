@@ -16,6 +16,7 @@ button{font:inherit;cursor:pointer}body{overscroll-behavior:none}
 .logo{font-size:13px;letter-spacing:4px;font-weight:900;color:#657a64;margin-bottom:10px}.title{font-size:42px;line-height:.95;font-weight:900;letter-spacing:-2px;margin:0}.subtitle{color:#66716a;font-size:13px;margin:12px 0 27px}
 .menu-actions{display:grid;gap:10px}.menu-btn{border:0;border-radius:15px;padding:15px 18px;text-align:left;background:#fff;box-shadow:0 7px 20px rgba(41,56,45,.1);display:flex;align-items:center;gap:14px;transition:.15s}.menu-btn:hover{transform:translateY(-1px)}.menu-btn:active{transform:translateY(1px)}.menu-btn .ico{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:#edf1e7;font-size:20px}.menu-btn b{display:block;font-size:15px}.menu-btn small{display:block;color:#77817b;font-size:10px;margin-top:2px}.menu-btn.primary{background:#1b2821;color:#fff}.menu-btn.primary .ico{background:#33483b}.menu-btn.disabled{opacity:.45;pointer-events:none}
 .version{margin-top:18px;color:#89918b;font-size:9px;letter-spacing:1px}
+.menu-modal{position:absolute;inset:0;display:grid;place-items:center;background:rgba(24,35,28,.32);backdrop-filter:blur(5px);z-index:5}.menu-modal-card{position:relative;width:min(360px,calc(100% - 40px));padding:24px;border-radius:20px;background:#faf9f2;box-shadow:0 20px 60px rgba(20,35,24,.25)}.menu-modal-card h3{margin:0 0 12px;font-size:20px}.menu-modal-card p{margin:7px 0;color:#69736e;font-size:12px;line-height:1.45}.modal-close{position:absolute;right:10px;top:8px;border:0;background:transparent;font-size:26px;color:#68736e}
 #game{background:#91ad83}.canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
 .hud{position:absolute;left:14px;right:14px;top:max(12px,env(safe-area-inset-top));display:flex;justify-content:space-between;gap:10px;pointer-events:none}
 .stats{display:flex;gap:7px}.card,.level,.side-panel,.buildbar,.back{background:rgba(250,249,242,.94);border:1px solid rgba(255,255,255,.65);box-shadow:0 9px 28px rgba(35,50,38,.15);backdrop-filter:blur(10px)}
@@ -40,6 +41,7 @@ button{font:inherit;cursor:pointer}body{overscroll-behavior:none}
 <button id="newBtn" class="menu-btn"><div class="ico">🏗️</div><div><b>Начать игру</b><small>Создать новый город</small></div></button>
 <button id="ratingBtn" class="menu-btn"><div class="ico">🏆</div><div><b>Рейтинг</b><small>Лучшие города игроков</small></div></button>
 <button id="settingsBtn" class="menu-btn"><div class="ico">⚙️</div><div><b>Настройки</b><small>Параметры игры</small></div></button>
+<div id="menuModal" class="menu-modal hidden"><div class="menu-modal-card"><button id="modalClose" class="modal-close">×</button><h3 id="modalTitle"></h3><div id="modalBody"></div></div></div>
 </div>
 <div class="version">HTML5 • V 0.1</div>
 </div>
@@ -124,10 +126,13 @@ if(name==='settings')p.innerHTML='<h3>⚙️ Настройки</h3><p>Прог�
 if(name==='settings')$('resetSave').onclick=()=>{if(confirm('Удалить сохранение и начать заново?')){localStorage.removeItem('my_clicker_save');location.reload()}}
 renderBuildBar()}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>panel(b.dataset.panel));
-function openGame(load){if(!load){state={money:1000,buildings:Array(14).fill(null),xp:0,level:1,totalEarned:0};save()}$('menu').classList.add('hidden');$('game').classList.remove('hidden');resize();panel('build')}
+function openGame(load){cam={x:0,y:0,z:1};if(!load){state={money:1000,buildings:Array(14).fill(null),xp:0,level:1,totalEarned:0};save()}$('menu').classList.add('hidden');$('game').classList.remove('hidden');resize();panel('build')}
 $('newBtn').onclick=()=>openGame(false);$('continueBtn').onclick=()=>openGame(true);
-$('ratingBtn').onclick=()=>toast('🏆 Рейтинг подключим через API Яндекс Игр');
-$('settingsBtn').onclick=()=>toast('⚙️ Настройки доступны внутри игры');
+function showMenuModal(title,body){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('menuModal').classList.remove('hidden')}
+$('modalClose').onclick=()=>$('menuModal').classList.add('hidden');
+$('menuModal').addEventListener('click',e=>{if(e.target===$('menuModal'))$('menuModal').classList.add('hidden')});
+$('ratingBtn').onclick=()=>showMenuModal('🏆 Рейтинг','<p>Локальный рейтинг пока не подключён.</p><p>Следующим этапом подключим рейтинг Яндекс Игр, чтобы здесь отображались игроки и их результаты.</p>');
+$('settingsBtn').onclick=()=>showMenuModal('⚙️ Настройки','<p>Здесь будут настройки звука, графики, управления и языка.</p><p>Сейчас доступен базовый режим без дополнительных параметров.</p>');
 $('backBtn').onclick=()=>{$('game').classList.add('hidden');$('menu').classList.remove('hidden')};
 
 canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,moved:false};canvas.setPointerCapture?.(e.pointerId)});
