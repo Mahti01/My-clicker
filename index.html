@@ -66,7 +66,7 @@ button{font:inherit;cursor:pointer}body{overscroll-behavior:none}
 </div>
 <div id="sidePanel" class="side-panel"></div>
 <div class="bottom">
-<div class="income"><small>Доход города</small><b id="income">0 монет / сек</b></div>
+<div class="income"><small>Доход города</small><b id="income">0 монет / сек</b><small id="incomeTimer" style="margin-top:3px;color:#879089">Экономика работает в реальном времени</small></div>
 <div id="buildbar" class="buildbar"></div>
 </div>
 <div id="toast" class="toast"></div>
@@ -392,8 +392,35 @@ canvas.addEventListener('pointerup',finishPointer);
 canvas.addEventListener('pointercancel',finishPointer);
 canvas.addEventListener('wheel',e=>{e.preventDefault();cam.z=Math.max(.72,Math.min(1.55,cam.z*(e.deltaY<0?1.08:.92)));clampCam();draw()},{passive:false});
 
-let animTime=0;let last=performance.now(),lastSave=performance.now();
-function loop(now){const dt=Math.min((now-last)/1000,1);last=now;animTime+=dt;const t=totals();state.money+=t.income*dt;state.totalEarned+=t.income*dt;if(now-lastSave>2000){save();lastSave=now}if(!$('game').classList.contains('hidden')){updateUI();draw()}requestAnimationFrame(loop)}
+let animTime=0;
+let last=performance.now();
+let lastSave=performance.now();
+let economyTime=performance.now();
+function loop(now){
+  const frameDt=Math.min((now-last)/1000,1);
+  last=now;
+  animTime+=frameDt;
+
+  // Экономика работает по реальному прошедшему времени, независимо от FPS анимации.
+  const economyDt=Math.min(Math.max((now-economyTime)/1000,0),1);
+  economyTime=now;
+  const t=totals();
+  if(economyDt>0 && t.income>0){
+    state.money+=t.income*economyDt;
+    state.totalEarned+=t.income*economyDt;
+  }
+
+  if(now-lastSave>2000){
+    save();
+    lastSave=now;
+  }
+
+  if(!$('game').classList.contains('hidden')){
+    updateUI();
+    draw();
+  }
+  requestAnimationFrame(loop);
+}
 requestAnimationFrame(loop);
 if(localStorage.getItem('my_clicker_save'))$('continueBtn').classList.remove('disabled');else $('continueBtn').classList.add('disabled');
 </script>
