@@ -1,4 +1,4 @@
-const STORAGE_KEY="city-economy-save-v1";
+const STORAGE_KEY="city-economy-save-v2";
 
 const STARTER_BUILDINGS=[
   {id:"starter-house-1",type:"house",x:1,y:1,w:2,h:2},
@@ -29,7 +29,7 @@ function ensureStarterWorld(data){
   const world=data.world||{};
   const hasBuildings=Array.isArray(world.buildings)&&world.buildings.length>0;
   const hasRoads=Array.isArray(world.roads)&&world.roads.length>0;
-  if(hasBuildings||hasRoads)return data;
+  if(hasBuildings&&hasRoads)return data;
   return {...data,world:{...world,buildings:clone(STARTER_BUILDINGS),roads:clone(STARTER_ROADS),vehicles:world.vehicles||[]}};
 }
 
