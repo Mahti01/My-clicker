@@ -1,278 +1,144 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Построй город — City Map v2</title>
+<title>My Clicker — Город</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Inter,Arial,sans-serif;background:#a9cdd8;color:#18231f}
-body{overscroll-behavior:none}
-#game{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.ui{position:fixed;inset:0;pointer-events:none}
-.top{position:absolute;left:14px;top:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.stats{display:flex;gap:7px;flex-wrap:wrap}.card,.level,.income,.build{background:rgba(255,255,255,.94);border:1px solid rgba(25,40,35,.08);box-shadow:0 8px 28px rgba(28,45,42,.14);backdrop-filter:blur(8px)}
-.card{padding:8px 12px;border-radius:14px;min-width:90px;font-size:10px;color:#65716d}.card b{display:block;color:#18231f;font-size:15px;margin-top:2px}.level{padding:10px 13px;border-radius:14px;text-align:right;font-size:13px}.level small{display:block;color:#68736f;margin-top:3px}
-.tabs{position:absolute;right:14px;top:112px;display:grid;grid-template-columns:repeat(2,110px);gap:7px;pointer-events:auto}.tab{border:0;border-radius:12px;padding:9px 10px;background:rgba(255,255,255,.93);box-shadow:0 6px 20px rgba(28,45,42,.12);font-size:11px;text-align:left}.tab span{font-size:17px;margin-right:5px}.tab.active{background:#17231f;color:#fff}
-.bottom{position:absolute;left:14px;right:14px;bottom:14px;display:flex;align-items:flex-end;gap:10px}.income{padding:10px 13px;border-radius:14px;min-width:145px}.income small{display:block;color:#68736f;font-size:10px}.income b{font-size:16px}
-.builds{display:flex;gap:7px;overflow:auto;padding:2px;pointer-events:auto;max-width:calc(100% - 160px)}.build{min-width:100px;padding:9px;border:0;border-radius:14px;text-align:left}.build:disabled{opacity:.43}.ico{font-size:23px}.build b{display:block;font-size:12px}.build span{font-size:10px;color:#68736f}.build.active{outline:2px solid #17231f}
-.hint{position:absolute;top:84px;left:50%;transform:translateX(-50%);background:#17231edd;color:#fff;padding:8px 13px;border-radius:20px;font-size:12px;opacity:0;transition:.2s}.hint.show{opacity:1}
-.reset{position:absolute;right:14px;bottom:82px;border:0;background:rgba(255,255,255,.9);padding:7px 10px;border-radius:10px;font-size:10px;pointer-events:auto}
-.panel{position:absolute;right:14px;top:195px;width:226px;background:rgba(255,255,255,.96);border-radius:16px;padding:13px;box-shadow:0 12px 35px rgba(28,45,42,.18);display:none;pointer-events:auto;font-size:12px}.panel.show{display:block}.panel h3{margin:0 0 8px;font-size:15px}.panel p{margin:5px 0;color:#68736f;line-height:1.35}
-@media(max-width:700px){.top{left:9px;right:9px;top:9px}.card{min-width:72px;padding:7px 9px}.card b{font-size:13px}.level{padding:8px 10px}.tabs{right:9px;top:102px;grid-template-columns:repeat(2,88px);gap:5px}.tab{padding:7px 8px;font-size:10px}.bottom{left:9px;right:9px;bottom:9px}.income{min-width:125px;padding:9px}.builds{max-width:calc(100% - 135px)}.build{min-width:88px}.reset{bottom:72px;right:9px}}
-
-.building-card{margin-top:10px;padding:10px;border-radius:12px;background:#f4f6f3;border:1px solid #e4e9e5}
-.building-card h4{margin:0 0 6px;font-size:13px}.mini{font-size:10px;color:#68736f;margin:3px 0}
-.action{width:100%;border:0;border-radius:10px;padding:9px;margin-top:7px;background:#17231f;color:#fff;font-size:11px}.action:disabled{opacity:.4}
-.quest{padding:8px 0;border-bottom:1px solid #e8ece9}.quest:last-child{border:0}.quest b{font-size:11px}.quest small{display:block;color:#68736f;margin-top:3px}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#9fbca0;color:#17221c}
+button{font:inherit;cursor:pointer}body{overscroll-behavior:none}
+.screen{position:fixed;inset:0}.hidden{display:none!important}
+#menu{display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#a9c9ae,#dfe5c9 55%,#8fae91)}
+.menu-bg{position:absolute;inset:0;overflow:hidden}
+.menu-bg:before{content:"";position:absolute;width:700px;height:700px;border-radius:50%;background:rgba(255,255,255,.2);left:-240px;top:-250px}
+.menu-bg:after{content:"";position:absolute;width:500px;height:500px;border-radius:50%;background:rgba(72,105,74,.13);right:-190px;bottom:-210px}
+.menu-card{position:relative;width:min(430px,calc(100% - 34px));padding:36px 30px 30px;background:rgba(250,249,242,.91);border:1px solid rgba(255,255,255,.7);border-radius:28px;box-shadow:0 24px 70px rgba(38,57,43,.22);backdrop-filter:blur(16px);text-align:center}
+.logo{font-size:13px;letter-spacing:4px;font-weight:900;color:#657a64;margin-bottom:10px}.title{font-size:42px;line-height:.95;font-weight:900;letter-spacing:-2px;margin:0}.subtitle{color:#66716a;font-size:13px;margin:12px 0 27px}
+.menu-actions{display:grid;gap:10px}.menu-btn{border:0;border-radius:15px;padding:15px 18px;text-align:left;background:#fff;box-shadow:0 7px 20px rgba(41,56,45,.1);display:flex;align-items:center;gap:14px;transition:.15s}.menu-btn:hover{transform:translateY(-1px)}.menu-btn:active{transform:translateY(1px)}.menu-btn .ico{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:#edf1e7;font-size:20px}.menu-btn b{display:block;font-size:15px}.menu-btn small{display:block;color:#77817b;font-size:10px;margin-top:2px}.menu-btn.primary{background:#1b2821;color:#fff}.menu-btn.primary .ico{background:#33483b}.menu-btn.disabled{opacity:.45;pointer-events:none}
+.version{margin-top:18px;color:#89918b;font-size:9px;letter-spacing:1px}
+#game{background:#91ad83}.canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.hud{position:absolute;left:14px;right:14px;top:max(12px,env(safe-area-inset-top));display:flex;justify-content:space-between;gap:10px;pointer-events:none}
+.stats{display:flex;gap:7px}.card,.level,.side-panel,.buildbar,.back{background:rgba(250,249,242,.94);border:1px solid rgba(255,255,255,.65);box-shadow:0 9px 28px rgba(35,50,38,.15);backdrop-filter:blur(10px)}
+.card{padding:8px 11px;border-radius:14px;min-width:88px}.card small{display:block;color:#69736e;font-size:9px}.card b{display:block;font-size:15px;margin-top:2px}.level{border-radius:14px;padding:9px 12px;text-align:right}.level b{font-size:14px}.level small{display:block;color:#69736e;font-size:9px;margin-top:2px}
+.tabs{position:absolute;right:14px;top:104px;display:grid;grid-template-columns:112px 112px;gap:7px;pointer-events:auto}.tab{border:0;border-radius:12px;background:rgba(250,249,242,.94);padding:9px 10px;text-align:left;font-size:10px;box-shadow:0 7px 22px rgba(35,50,38,.12)}.tab span{font-size:16px;margin-right:5px}.tab.active{background:#1b2821;color:#fff}
+.side-panel{position:absolute;right:14px;top:228px;width:235px;border-radius:16px;padding:13px;display:none;font-size:11px}.side-panel.show{display:block}.side-panel h3{margin:0 0 8px;font-size:15px}.side-panel p{margin:5px 0;color:#69736e;line-height:1.35}
+.bottom{position:absolute;left:14px;right:14px;bottom:max(14px,env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:9px;pointer-events:none}.income{background:rgba(250,249,242,.94);border-radius:14px;padding:9px 12px;min-width:140px;box-shadow:0 8px 24px rgba(35,50,38,.14)}.income small{display:block;color:#69736e;font-size:9px}.income b{font-size:14px}.buildbar{display:flex;gap:6px;padding:7px;border-radius:15px;overflow:auto;max-width:calc(100% - 155px);pointer-events:auto}.build{border:0;background:#f0f1e9;border-radius:11px;padding:7px 9px;min-width:90px;text-align:left}.build.active{background:#1b2821;color:#fff}.build:disabled{opacity:.4}.build i{font-style:normal;font-size:18px}.build b{display:block;font-size:10px}.build small{font-size:8px;color:#758078}.build.active small{color:#d7ddd8}
+.back{position:absolute;left:14px;top:max(14px,env(safe-area-inset-top));border:0;border-radius:12px;padding:9px 12px;pointer-events:auto;font-size:11px}
+.toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);background:#1b2821;color:#fff;padding:12px 17px;border-radius:14px;opacity:0;pointer-events:none;transition:.18s;font-size:12px;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+@media(max-width:700px){.hud{left:8px;right:8px}.stats{gap:4px}.card{min-width:72px;padding:7px 8px}.card b{font-size:12px}.level{padding:8px 9px}.tabs{right:8px;top:100px;grid-template-columns:92px 92px;gap:5px}.tab{padding:7px;font-size:9px}.bottom{left:8px;right:8px}.income{min-width:116px;padding:8px}.buildbar{max-width:calc(100% - 128px)}.build{min-width:82px}.side-panel{right:8px;top:204px;width:205px}.menu-card{padding:31px 22px 25px}.title{font-size:36px}}
 </style>
 </head>
 <body>
-<canvas id="game"></canvas>
-<div class="ui">
-<div class="top">
+<section id="menu" class="screen">
+<div class="menu-bg"></div>
+<div class="menu-card">
+<div class="logo">MY CLICKER</div>
+<h1 class="title">Город<br>с нуля</h1>
+<div class="subtitle">Стройте дома. Развивайте город. Растите.</div>
+<div class="menu-actions">
+<button id="continueBtn" class="menu-btn primary"><div class="ico">▶️</div><div><b>Продолжить игру</b><small>Загрузить сохранённый город</small></div></button>
+<button id="newBtn" class="menu-btn"><div class="ico">🏗️</div><div><b>Начать игру</b><small>Создать новый город</small></div></button>
+<button id="ratingBtn" class="menu-btn"><div class="ico">🏆</div><div><b>Рейтинг</b><small>Лучшие города игроков</small></div></button>
+<button id="settingsBtn" class="menu-btn"><div class="ico">⚙️</div><div><b>Настройки</b><small>Параметры игры</small></div></button>
+</div>
+<div class="version">HTML5 • V 0.1</div>
+</div>
+</section>
+
+<section id="game" class="screen hidden">
+<canvas id="canvas" class="canvas"></canvas>
+<button id="backBtn" class="back">← Меню</button>
+<div class="hud">
 <div class="stats">
-<div class="card">💰 Деньги<b id="money">1 000</b></div>
-<div class="card">👥 Жители<b id="pop">0</b></div>
-<div class="card">📈 Доход<b id="rate">+0/сек</b></div>
+<div class="card"><small>💰 Деньги</small><b id="money">1 000</b></div>
+<div class="card"><small>👥 Жители</small><b id="pop">0</b></div>
+<div class="card"><small>📈 Доход</small><b id="rate">+0/сек</b></div>
 </div>
 <div class="level"><b id="level">Город 1</b><small id="xp">0 / 100 XP</small></div>
 </div>
-<div id="tabs" class="tabs">
+<div class="tabs">
 <button class="tab active" data-panel="build"><span>🏗️</span>Строительство</button>
 <button class="tab" data-panel="city"><span>🏙️</span>Город</button>
 <button class="tab" data-panel="stats"><span>📊</span>Статистика</button>
 <button class="tab" data-panel="settings"><span>⚙️</span>Настройки</button>
 </div>
-<div id="panel" class="panel"></div>
-<div id="hint" class="hint">Выберите здание</div>
+<div id="sidePanel" class="side-panel"></div>
 <div class="bottom">
 <div class="income"><small>Доход города</small><b id="income">0 монет / сек</b></div>
-<div id="builds" class="builds"></div>
+<div id="buildbar" class="buildbar"></div>
 </div>
-<button id="reset" class="reset">Сбросить</button>
-</div>
+<div id="toast" class="toast"></div>
+</section>
+
 <script>
-const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
-let W=innerWidth,H=innerHeight,dpr=1;
-const types=[
-{id:"house",name:"Дом",ico:"🏠",cost:150,income:2,pop:12,xp:20,color:"#c99b7c",h:45},
-{id:"shop",name:"Магазин",ico:"🏪",cost:400,income:7,pop:4,xp:35,color:"#cf8f62",h:58},
-{id:"office",name:"Офис",ico:"🏢",cost:900,income:18,pop:8,xp:60,color:"#7d9da7",h:88},
-{id:"park",name:"Парк",ico:"🌳",cost:600,income:1,pop:20,xp:45,color:"#83a777",h:28},
-{id:"cafe",name:"Кафе",ico:"☕",cost:750,income:11,pop:5,xp:50,color:"#b88b67",h:52}
-];
-let state=JSON.parse(localStorage.getItem("city_builder")||"null")||{money:1000,pop:0,xp:0,level:1,buildings:[],totalEarned:0,quests:{home:false,people:false,money:false}};
-state.totalEarned=state.totalEarned||0; state.quests=state.quests||{home:false,people:false,money:false};
-let selectedBuilding=null;
-const CELL=Math.min(108,Math.max(78,innerWidth/4.45));
-const plots=[
-{x:-2.15,y:-2.25},{x:-.72,y:-2.25},{x:.72,y:-2.25},{x:2.15,y:-2.25},
-{x:-2.15,y:-.72},{x:2.15,y:-.72},
-{x:-2.15,y:.72},{x:2.15,y:.72},
-{x:-2.15,y:2.25},{x:-.72,y:2.25},{x:.72,y:2.25},{x:2.15,y:2.25}
-];
-let cam={x:W/2,y:H/2+20,z:.82},drag=null,selected=null;
-
-function resize(){
-dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;
-canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+"px";canvas.style.height=H+"px";
-ctx.setTransform(dpr,0,0,dpr,0,0);
-cam.x=W/2;cam.y=H/2+20;draw()
-}
-function perspective(y){return 1-y*.025}
-function worldToScreen(x,y){
-let k=perspective(y);
-return {x:cam.x+x*CELL*.82*cam.z*k,y:cam.y+y*CELL*.78*cam.z}
-}
-function grid(px,py){
-let best=plots[0],bd=1e9;
-for(const p of plots){
-let s=worldToScreen(p.x,p.y),d=Math.hypot(px-s.x,(py-s.y)*.9);
-if(d<bd){bd=d;best=p}
-}
-return {x:best.x,y:best.y}
-}
-function plotAt(x,y){return plots.some(p=>p.x===x&&p.y===y)}
-function poly(points,fill,stroke,w=1){
-ctx.beginPath();
-points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
-ctx.closePath();
-ctx.fillStyle=fill;ctx.fill();
-if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=w*cam.z;ctx.stroke()}
-}
-function roundedRect(x,y,w,h,r,fill,stroke){
-ctx.beginPath();ctx.roundRect(x,y,w,h,r);
-ctx.fillStyle=fill;ctx.fill();
-if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5*cam.z;ctx.stroke()}
-}
-function drawGround(){
-ctx.fillStyle="#8fa08b";ctx.fillRect(0,0,W,H);
-
-const left=worldToScreen(-3,-3),right=worldToScreen(3,-3),br=worldToScreen(3,3),bl=worldToScreen(-3,3);
-poly([left,right,br,bl],"#b8c99f","#738773",2);
-
-for(const p of plots){
-let cx=worldToScreen(p.x,p.y);
-const w=CELL*.9*cam.z,h=CELL*.72*cam.z;
-roundedRect(cx.x-w/2,cx.y-h/2,w,h,10*cam.z,"#9dbb80","#718b69");
-roundedRect(cx.x-w/2+4*cam.z,cx.y-h/2+4*cam.z,w-8*cam.z,h-8*cam.z,8*cam.z,"#b9d696","#9ab77d");
-}
-drawRoads();
-}
-function drawRoads(){
-const road="#b8b1a5",edge="#ddd5c8";
-function roadH(y){
-let a=worldToScreen(-2.95,y-.22),b=worldToScreen(2.95,y-.22),c=worldToScreen(2.95,y+.22),d=worldToScreen(-2.95,y+.22);
-poly([a,b,c,d],road,null);
-let e=worldToScreen(-2.95,y-.22),f=worldToScreen(2.95,y-.22);
-ctx.strokeStyle=edge;ctx.lineWidth=3*cam.z;ctx.beginPath();ctx.moveTo(e.x,e.y);ctx.lineTo(f.x,f.y);ctx.stroke();
-}
-function roadV(x){
-let a=worldToScreen(x-.22,-2.9),b=worldToScreen(x+.22,-2.9),c=worldToScreen(x+.22,2.9),d=worldToScreen(x-.22,2.9);
-poly([a,b,c,d],road,null);
-}
-roadH(-1.48);roadH(0);roadH(1.48);
-roadV(-2.72);roadV(2.72);
-ctx.strokeStyle="#ece6da";ctx.lineWidth=1.4*cam.z;ctx.setLineDash([11*cam.z,15*cam.z]);
-for(const y of [-1.48,1.48]){
-let a=worldToScreen(-2.6,y),b=worldToScreen(2.6,y);
-ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
-}
-ctx.setLineDash([]);
-}
-function drawMapDetails(){
-const s=cam.z;
-function tree(wx,wy,k=.55){
-let p=worldToScreen(wx,wy),r=15*s*k;
-ctx.save();ctx.translate(p.x,p.y);
-ctx.fillStyle="#72543e";ctx.fillRect(-2*s,5*s,4*s,13*s);
-ctx.fillStyle="#4e8157";ctx.beginPath();ctx.arc(0,-5*s,r,0,Math.PI*2);ctx.arc(-r*.55,2*s,r*.68,0,Math.PI*2);ctx.arc(r*.55,2*s,r*.68,0,Math.PI*2);ctx.fill();
-ctx.fillStyle="#6d9b63";ctx.beginPath();ctx.arc(-3*s,-8*s,r*.38,0,Math.PI*2);ctx.fill();ctx.restore();
-}
-function lamp(wx,wy){
-let p=worldToScreen(wx,wy);ctx.save();ctx.translate(p.x,p.y);
-ctx.fillStyle="#5b5d57";ctx.fillRect(-1*s,0,2*s,12*s);
-ctx.fillStyle="#f5d985";ctx.beginPath();ctx.arc(0,-2*s,3.2*s,0,Math.PI*2);ctx.fill();ctx.restore();
-}
-function bench(wx,wy){
-let p=worldToScreen(wx,wy);ctx.save();ctx.translate(p.x,p.y);
-ctx.fillStyle="#765943";ctx.fillRect(-10*s,0,20*s,3*s);ctx.fillRect(-7*s,3*s,2*s,6*s);ctx.fillRect(5*s,3*s,2*s,6*s);ctx.restore();
-}
-tree(-2.85,-2.72,.8);tree(2.85,-2.72,.8);tree(-2.85,2.72,.8);tree(2.85,2.72,.8);
-tree(-2.82,-.05,.55);tree(2.82,.05,.55);
-lamp(-2.48,-1.48);lamp(2.48,-1.48);lamp(-2.48,1.48);lamp(2.48,1.48);
-
-const p=worldToScreen(0,0),w=CELL*2.05*cam.z,h=CELL*1.28*cam.z;
-ctx.save();ctx.translate(p.x,p.y);
-roundedRect(-w/2,-h/2,w,h,16*s,"#d9ceb9","#b9ad98");
-ctx.fillStyle="#8db7bd";ctx.beginPath();ctx.ellipse(0,0,w*.19,h*.19,0,0,Math.PI*2);ctx.fill();
-ctx.fillStyle="#f0ede5";ctx.beginPath();ctx.ellipse(0,0,w*.13,h*.13,0,0,Math.PI*2);ctx.fill();
-ctx.fillStyle="#8db7bd";ctx.beginPath();ctx.ellipse(0,0,w*.085,h*.085,0,0,Math.PI*2);ctx.fill();
-ctx.restore();
-bench(-.55,-.43);bench(.55,.43);lamp(-.78,-.62);lamp(.78,.62);
-}
-function drawBuilding(b){
-const p=worldToScreen(b.x,b.y),t=types.find(x=>x.id===b.type),s=cam.z;
-const w=54*s,h=45*s;
-ctx.save();ctx.translate(p.x,p.y);
-ctx.fillStyle="rgba(58,69,55,.28)";ctx.beginPath();ctx.ellipse(0,14*s,w*.55,8*s,0,0,Math.PI*2);ctx.fill();
-if(t.id==="park"){
-ctx.fillStyle="#8caf72";ctx.fillRect(-w/2,-h*.28,w,h*.56);
-drawTreeLocal(0,0,.7);drawTreeLocal(-15,2,.45);drawTreeLocal(15,2,.45);
-}else{
-ctx.fillStyle="#d8c4a9";ctx.fillRect(-w/2,-h*.28,w,h*.56);
-ctx.fillStyle=t.color;ctx.fillRect(-w/2+2*s,-h*.26,w-4*s,h*.5);
-ctx.fillStyle="#7b5843";
-ctx.beginPath();ctx.moveTo(-w*.55,-h*.26);ctx.lineTo(0,-h*.58);ctx.lineTo(w*.55,-h*.26);ctx.closePath();ctx.fill();
-ctx.fillStyle="#f4eadb";
-for(let yy=-1;yy<=1;yy++){ctx.fillRect(-17*s,yy*8*s,7*s,5*s);ctx.fillRect(10*s,yy*8*s,7*s,5*s)}
-ctx.fillStyle="#6a4e3e";ctx.fillRect(-6*s,3*s,12*s,10*s);
-ctx.font=Math.max(16,23*s)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(t.ico,0,-h*.16);
-}
-if(selectedBuilding===b){
-ctx.strokeStyle="#f2c85d";ctx.lineWidth=4*s;ctx.strokeRect(-w/2-5*s,-h*.62-5*s,w+10*s,h*.92);
-}
-ctx.restore();
-function drawTreeLocal(x,y,k){ctx.save();ctx.translate(x*s,y*s);ctx.fillStyle="#76543d";ctx.fillRect(-2*s,4*s,4*s,10*s);ctx.fillStyle="#4f8156";ctx.beginPath();ctx.arc(0,-4*s,11*s*k,0,Math.PI*2);ctx.arc(-7*s,1*s,7*s*k,0,Math.PI*2);ctx.arc(7*s,1*s,7*s*k,0,Math.PI*2);ctx.fill();ctx.restore()}
-}
-function draw(){
-ctx.clearRect(0,0,W,H);drawGround();drawMapDetails();
-state.buildings.slice().sort((a,b)=>a.y-b.y||a.x-b.x).forEach(drawBuilding)
-}
-function findBuildingAt(px,py){
-let g=grid(px,py),best=null;
-for(let b of state.buildings){if(b.x===g.x&&b.y===g.y)best=b}
-return best;
-}
-function fmt(n){return Math.floor(n).toLocaleString("ru-RU")}
-function rate(){return state.buildings.reduce((a,b)=>{let t=types.find(t=>t.id===b.type);return a+(t?.income||0)*(1+(b.level-1)*0.35)},0)}
-function upgradeCost(b){let t=types.find(x=>x.id===b.type);return Math.floor(t.cost*(1+b.level*.75))}
-function buildingInfo(b){let t=types.find(x=>x.id===b.type);return {t,income:Math.floor(t.income*(1+(b.level-1)*.35)),cost:upgradeCost(b)}}
-function save(){localStorage.setItem("city_builder",JSON.stringify(state))}
-function render(){
-money.textContent=fmt(state.money);pop.textContent=fmt(state.pop);rateEl.textContent="+"+fmt(rate())+"/сек";income.textContent=fmt(rate())+" монет / сек";level.textContent="Город "+state.level;xp.textContent=fmt(state.xp)+" / "+state.level*100+" XP";
-builds.innerHTML="";
-types.forEach(t=>{let b=document.createElement("button");b.className="build"+(selected===t.id?" active":"");b.disabled=state.money<t.cost;b.innerHTML='<div class="ico">'+t.ico+'</div><b>'+t.name+'</b><span>'+fmt(t.cost)+' 💰 · +'+t.income+'/сек</span>';b.onclick=()=>{selected=selected===t.id?null:t.id;selectedBuilding=null;hint.textContent=selected?"Нажмите на клетку":"Выберите здание";hint.classList.add("show");setTimeout(()=>hint.classList.remove("show"),1300);render()};builds.appendChild(b)});
-save();draw()
-}
-function showPanel(name){
-if(name==="build"){panel.innerHTML="<h3>🏗️ Строительство</h3><p>Выберите здание снизу и нажмите на свободную клетку.</p><p>Перетаскивайте карту для обзора города, колесом мыши или жестом меняйте масштаб.</p>"}
-if(name==="city"){panel.innerHTML="<h3>🏙️ Ваш город</h3><p>Уровень: <b>"+state.level+"</b></p><p>Жителей: <b>"+fmt(state.pop)+"</b></p><p>Построено: <b>"+state.buildings.length+"</b></p>"}
-if(name==="stats"){panel.innerHTML="<h3>📊 Статистика</h3><p>Доход: <b>"+fmt(rate())+" 💰/сек</b></p><p>Зданий: <b>"+fmt(state.buildings.length)+"</b></p><p>XP: <b>"+fmt(state.xp)+"</b></p><p>Всего заработано: <b>"+fmt(state.totalEarned)+" 💰</b></p>"}
-if(name==="city"){panel.innerHTML="<h3>🏙️ Ваш город</h3><p>Уровень: <b>"+state.level+"</b></p><p>Жителей: <b>"+fmt(state.pop)+"</b></p><p>Построено: <b>"+state.buildings.length+"</b></p><div class='quest'><b>🏠 Первые дома</b><small>"+(state.quests.home?"Выполнено · +500 💰":"Постройте 5 домов · награда 500 💰")+"</small></div><div class='quest'><b>👥 Растущий город</b><small>"+(state.quests.people?"Выполнено · +1 000 💰":"Достигните 100 жителей · награда 1 000 💰")+"</small></div><div class='quest'><b>💰 Крупный оборот</b><small>"+(state.quests.money?"Выполнено · +2 500 💰":"Заработайте 10 000 💰 · награда 2 500 💰")+"</small></div>"}
-if(name==="settings"){panel.innerHTML="<h3>⚙️ Настройки</h3><p>Прогресс хранится локально на устройстве.</p><p>Кнопка «Сбросить» полностью начинает город заново.</p>"}
-panel.classList.add("show")
-}
-document.querySelectorAll(".tab").forEach(btn=>btn.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));btn.classList.add("active");showPanel(btn.dataset.panel)});
-canvas.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,moved:false};canvas.setPointerCapture(e.pointerId)});
-canvas.addEventListener("pointermove",e=>{if(drag){let dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>5)drag.moved=true;cam.x=drag.cx+dx;cam.y=drag.cy+dy;draw()}});
-canvas.addEventListener("pointerup",e=>{
-if(!drag||drag.moved){drag=null;return}
-let g=grid(e.clientX,e.clientY);drag=null;
-if(!selected){selectedBuilding=findBuildingAt(e.clientX,e.clientY);showBuildingPanel();return;}
-if(!plotAt(g.x,g.y)){toast("Выберите свободный участок");return}
-if(state.buildings.some(b=>b.x===g.x&&b.y===g.y)){toast("Эта клетка занята");return}
-let t=types.find(x=>x.id===selected);if(state.money<t.cost){toast("Недостаточно денег");return}
-state.money-=t.cost;state.pop+=t.pop;state.xp+=t.xp;let need=state.level*100;
-if(state.xp>=need){state.xp-=need;state.level++;toast("🎉 Новый уровень! Город "+state.level)}
-state.buildings.push({type:t.id,x:g.x,y:g.y,level:1});selected=null;selectedBuilding=null;render();
-});
-canvas.addEventListener("dblclick",e=>{let b=findBuildingAt(e.clientX,e.clientY);if(b){selectedBuilding=b;selected=null;showBuildingPanel()}});
-canvas.addEventListener("wheel",e=>{e.preventDefault();let old=cam.z;cam.z=Math.max(.65,Math.min(1.7,cam.z*(e.deltaY<0?1.1:.9)));let mx=e.clientX,my=e.clientY;cam.x=mx+(cam.x-mx)*cam.z/old;cam.y=my+(cam.y-my)*cam.z/old;draw()},{passive:false});
-let toastTimer;function toast(t){hint.textContent=t;hint.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>hint.classList.remove("show"),1500)}
-reset.onclick=()=>{if(confirm("Начать город заново?")){localStorage.removeItem("city_builder");location.reload()}};
-const money=document.getElementById("money"),pop=document.getElementById("pop"),rateEl=document.getElementById("rate"),income=document.getElementById("income"),level=document.getElementById("level"),xp=document.getElementById("xp"),builds=document.getElementById("builds"),hint=document.getElementById("hint"),panel=document.getElementById("panel"),reset=document.getElementById("reset");
-function showBuildingPanel(){
-if(!selectedBuilding){panel.classList.remove("show");return}
-let {t,income,cost}=buildingInfo(selectedBuilding);
-panel.innerHTML='<h3>'+t.ico+' '+t.name+'</h3>'+
-'<div class="building-card"><h4>Уровень '+selectedBuilding.level+'</h4>'+
-'<div class="mini">Доход: +'+income+' 💰/сек</div>'+
-'<div class="mini">Население: +'+t.pop+'</div>'+
-'<div class="mini">Следующее улучшение: '+fmt(cost)+' 💰</div>'+
-'<button class="action" id="upgrade" '+(state.money<cost?'disabled':'')+'>⬆️ Улучшить</button>'+
-'<button class="action" id="closeBuild" style="background:#e8ece9;color:#17231f">Закрыть</button></div>';
-panel.classList.add("show");
-document.getElementById("upgrade").onclick=()=>{
- if(state.money<cost)return toast("Недостаточно денег");
- state.money-=cost;selectedBuilding.level++;state.xp+=Math.floor(t.xp*.6);save();render();showBuildingPanel();toast("⬆️ Здание улучшено до уровня "+selectedBuilding.level);
+const $=id=>document.getElementById(id);
+const canvas=$('canvas'),ctx=canvas.getContext('2d');
+let W=0,H=0,D=1,cam={x:0,y:0,z:1},drag=null,selectedType='house',activePanel='build';
+const TYPES={
+house:{name:'Дом',icon:'🏠',cost:150,income:2,pop:12,xp:20,color:'#dfc3a3',roof:'#6d5548'},
+shop:{name:'Магазин',icon:'🏪',cost:400,income:7,pop:4,xp:35,color:'#d9ae91',roof:'#725148'},
+office:{name:'Офис',icon:'🏢',cost:900,income:18,pop:8,xp:60,color:'#a9c8d0',roof:'#52676d'},
+park:{name:'Парк',icon:'🌳',cost:600,income:1,pop:20,xp:45,color:'#88b476',roof:'#648a5c'}
 };
-document.getElementById("closeBuild").onclick=()=>{selectedBuilding=null;panel.classList.remove("show")};
+const plots=[[-3,-3],[0,-3],[3,-3],[-3,-1],[3,-1],[-3,1],[3,1],[-3,3],[0,3],[3,3],[-5,0],[5,0],[-5,3],[5,3]];
+let state=JSON.parse(localStorage.getItem('my_clicker_save')||'null')||{money:1000,buildings:Array(14).fill(null),xp:0,level:1,totalEarned:0};
+if(!Array.isArray(state.buildings)||state.buildings.length!==14)state.buildings=Array(14).fill(null);
+
+function save(){localStorage.setItem('my_clicker_save',JSON.stringify(state))}
+function fmt(n){return Math.floor(n).toLocaleString('ru-RU')}
+function totals(){let income=0,pop=0;state.buildings.forEach(b=>{if(!b)return;const t=TYPES[b.type],m=1+(b.level-1)*.35;income+=t.income*m;pop+=t.pop});return{income,pop}}
+function resize(){W=innerWidth;H=innerHeight;D=Math.min(devicePixelRatio||1,2);canvas.width=W*D;canvas.height=H*D;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(D,0,0,D,0,0);draw()}
+addEventListener('resize',resize);
+
+function iso(a,b){const s=Math.min(W/12,H/17)*cam.z;return{x:W/2+cam.x+(a-b)*s*.72,y:H/2+cam.y+(a+b)*s*.34}}
+function poly(points,fill,stroke){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke()}}
+function tree(x,y,k=.6){ctx.fillStyle='#6b4b38';ctx.fillRect(x-2,y+7,4,19*k);ctx.fillStyle='#4f8154';ctx.beginPath();ctx.arc(x,y,14*k,0,Math.PI*2);ctx.fill();ctx.fillStyle='#76a45f';ctx.beginPath();ctx.arc(x-7*k,y-4,9*k,0,Math.PI*2);ctx.arc(x+7*k,y-3,10*k,0,Math.PI*2);ctx.fill()}
+function lamp(x,y){ctx.strokeStyle='#50483f';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x,y+16);ctx.lineTo(x,y-9);ctx.stroke();ctx.fillStyle='#f5d78b';ctx.beginPath();ctx.arc(x,y-11,5,0,Math.PI*2);ctx.fill()}
+function building(x,y,type,level){const t=TYPES[type],s=cam.z,w=type==='office'?64:type==='shop'?62:56,h=type==='office'?47:type==='shop'?40:34;
+if(type==='park'){ctx.fillStyle='rgba(40,55,35,.18)';ctx.beginPath();ctx.ellipse(x,y+16,w*.65,8,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=t.color;ctx.beginPath();ctx.ellipse(x,y,w*.65,h*.55,0,0,Math.PI*2);ctx.fill();tree(x,y-8,.65);tree(x-16,y+3,.42);tree(x+16,y+3,.42);return}
+ctx.fillStyle='rgba(40,45,35,.22)';ctx.beginPath();ctx.ellipse(x+4,y+h*.55,w*.72,9,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle=t.color;ctx.fillRect(x-w/2,y-h/2,w,h);
+poly([{x:x-w*.62,y:y-h/2},{x,y:y-h/2-(type==='office'?30:27)},{x:x+w*.62,y:y-h/2}],t.roof,'#4c4039');
+ctx.fillStyle=type==='office'?'#8eb1ba':'#f4d98f';
+if(type==='office'){for(let i=-1;i<2;i++)ctx.fillRect(x+i*17-5,y-10,10,18)}else{ctx.fillRect(x-w*.28,y-9,12,10);ctx.fillRect(x+w*.08,y-9,12,10);ctx.fillStyle='#674c3c';ctx.fillRect(x-5,y-1,10,16)}
+ctx.font=Math.max(16,23*s)+'px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t.icon,x,y-h*.16);
+if(level>1){ctx.fillStyle='#fff';ctx.font='700 10px Arial';ctx.fillText('★ '+level,x,y+h*.65)}
 }
-function updateQuests(){
-let q=state.quests;
-if(!q.home&&state.buildings.filter(b=>b.type==="house").length>=5){q.home=true;state.money+=500;toast("🏠 Задание выполнено: +500 💰")}
-if(!q.people&&state.pop>=100){q.people=true;state.money+=1000;toast("👥 100 жителей: +1 000 💰")}
-if(!q.money&&state.totalEarned>=10000){q.money=true;state.money+=2500;toast("💰 Заработано 10 000: +2 500 💰")}
-}
+function fountain(){const q=iso(0,0),r=Math.min(W,H)*.105*cam.z;ctx.fillStyle='rgba(50,55,45,.2)';ctx.beginPath();ctx.ellipse(q.x+4,q.y+8,r*1.08,r*.55,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#c9bea9';ctx.beginPath();ctx.ellipse(q.x,q.y,r*1.08,r*.58,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#70b6c1';ctx.beginPath();ctx.ellipse(q.x,q.y,r*.82,r*.43,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#f7f1e6';ctx.lineWidth=4;ctx.stroke();ctx.fillStyle='#d9cfbf';ctx.beginPath();ctx.ellipse(q.x,q.y-r*.18,r*.22,r*.11,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(q.x,q.y-r*.18);ctx.quadraticCurveTo(q.x-7,q.y-r*.55,q.x,q.y-r*.7);ctx.quadraticCurveTo(q.x+7,q.y-r*.55,q.x,q.y-r*.18);ctx.stroke()}
+function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#8eae7a';ctx.fillRect(0,0,W,H);
+ctx.fillStyle='#e8dfcc';poly([{x:35,y:30},{x:W-35,y:30},{x:W-55,y:H-30},{x:55,y:H-30}],'#e8dfcc','#cfc4ad');
+const L=60,R=W-60,T=90,B=H-70,M=W/2;
+function road(x1,y1,x2,y2){ctx.strokeStyle='#d1c5ad';ctx.lineWidth=44*cam.z;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=2;ctx.stroke()}
+road(L,T,R,T);road(L,H/2,R,H/2);road(L,B,R,B);road(L,T,L,B);road(M,T,M,B);road(R,T,R,B);
+plots.forEach((v,i)=>{const q=iso(v[0],v[1]),s=Math.min(W/12,H/17)*cam.z,w=s*1.55,h=s*.73;poly([{x:q.x,y:q.y-h},{x:q.x+w,y:q.y},{x:q.x,y:q.y+h},{x:q.x-w,y:q.y}], '#b7d597','#809b69');tree(q.x-w*.58,q.y-h*.18,.42);tree(q.x+w*.58,q.y-h*.12,.38);if(state.buildings[i])building(q.x,q.y,state.buildings[i].type,state.buildings[i].level);else{ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(255,255,255,.75)';ctx.beginPath();ctx.moveTo(q.x,q.y-h*.45);ctx.lineTo(q.x+w*.45,q.y);ctx.lineTo(q.x,q.y+h*.45);ctx.lineTo(q.x-w*.45,q.y);ctx.closePath();ctx.stroke();ctx.setLineDash([])}})
+fountain();for(let i=0;i<5;i++)lamp(W*.24+i*W*.13,H*.5);for(let i=0;i<7;i++)tree(45+i*(W-90)/6,62+(i%2)*8,.62);for(let i=0;i<6;i++)tree(55+i*(W-110)/5,H-53-(i%2)*7,.62);
+updateUI()}
+function updateUI(){const t=totals();$('money').textContent=fmt(state.money);$('pop').textContent=fmt(t.pop);$('rate').textContent='+'+fmt(t.income)+'/сек';$('income').textContent=fmt(t.income)+' монет / сек';$('level').textContent='Город '+state.level;$('xp').textContent=fmt(state.xp)+' / '+state.level*100+' XP';renderBuildBar()}
+function renderBuildBar(){const el=$('buildbar');el.innerHTML='';if(activePanel!=='build'){el.style.display='none';return}el.style.display='flex';Object.entries(TYPES).forEach(([id,t])=>{const b=document.createElement('button');b.className='build'+(id===selectedType?' active':'');b.disabled=state.money<t.cost;b.innerHTML='<i>'+t.icon+'</i><b>'+t.name+'</b><small>'+fmt(t.cost)+' 💰 · +'+t.income+'/сек</small>';b.onclick=()=>{selectedType=id;renderBuildBar()};el.appendChild(b)})}
+function toast(s){const e=$('toast');e.textContent=s;e.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.classList.remove('show'),1300)}
+function panel(name){activePanel=name;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.panel===name));const p=$('sidePanel');p.classList.add('show');
+if(name==='build')p.innerHTML='<h3>🏗️ Строительство</h3><p>Выберите здание снизу, затем нажмите на свободный участок.</p><p>Карту можно перемещать свайпом и масштабировать колесом мыши.</p>';
+if(name==='city'){const t=totals();p.innerHTML='<h3>🏙️ Ваш город</h3><p>Уровень: <b>'+state.level+'</b></p><p>Жителей: <b>'+fmt(t.pop)+'</b></p><p>Построено: <b>'+state.buildings.filter(Boolean).length+'</b></p>'}
+if(name==='stats'){const t=totals();p.innerHTML='<h3>📊 Статистика</h3><p>Доход: <b>'+fmt(t.income)+' 💰/сек</b></p><p>Зданий: <b>'+state.buildings.filter(Boolean).length+'</b></p><p>Всего заработано: <b>'+fmt(state.totalEarned)+' 💰</b></p>'}
+if(name==='settings')p.innerHTML='<h3>⚙️ Настройки</h3><p>Прогресс сохраняется автоматически на устройстве.</p><button id="resetSave" style="width:100%;border:0;border-radius:10px;padding:9px;background:#1b2821;color:#fff">Сбросить прогресс</button>';
+if(name==='settings')$('resetSave').onclick=()=>{if(confirm('Удалить сохранение и начать заново?')){localStorage.removeItem('my_clicker_save');location.reload()}}
+renderBuildBar()}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>panel(b.dataset.panel));
+function openGame(load){if(!load){state={money:1000,buildings:Array(14).fill(null),xp:0,level:1,totalEarned:0};save()}$('menu').classList.add('hidden');$('game').classList.remove('hidden');resize();panel('build')}
+$('newBtn').onclick=()=>openGame(false);$('continueBtn').onclick=()=>openGame(true);
+$('ratingBtn').onclick=()=>toast('🏆 Рейтинг подключим через API Яндекс Игр');
+$('settingsBtn').onclick=()=>toast('⚙️ Настройки доступны внутри игры');
+$('backBtn').onclick=()=>{$('game').classList.add('hidden');$('menu').classList.remove('hidden')};
+
+canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,moved:false};canvas.setPointerCapture?.(e.pointerId)});
+canvas.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>6)drag.moved=true;if(drag.moved){cam.x=drag.cx+dx;cam.y=drag.cy+dy;draw()}});
+canvas.addEventListener('pointerup',e=>{if(!drag)return;if(!drag.moved){let best=-1,bd=999;plots.forEach((v,i)=>{const q=iso(v[0],v[1]),s=Math.min(W/12,H/17)*cam.z,w=s*1.55,h=s*.73,d=Math.abs((e.clientX-q.x)/w)+Math.abs((e.clientY-q.y)/h);if(d<1&&d<bd){bd=d;best=i}});if(best>=0){const b=state.buildings[best];if(b){toast(TYPES[b.type].icon+' '+TYPES[b.type].name+' · уровень '+b.level)}else if(activePanel==='build'){const t=TYPES[selectedType];if(state.money<t.cost)toast('Не хватает денег');else{state.money-=t.cost;state.buildings[best]={type:selectedType,level:1};state.xp+=t.xp;while(state.xp>=state.level*100){state.xp-=state.level*100;state.level++;toast('🎉 Новый уровень!')}save();toast(t.icon+' '+t.name+' построен');draw()}}}}drag=null});
+canvas.addEventListener('wheel',e=>{e.preventDefault();cam.z=Math.max(.72,Math.min(1.55,cam.z*(e.deltaY<0?1.08:.92)));draw()},{passive:false});
+
 let last=performance.now(),lastSave=performance.now();
-function loop(now){
-let dt=(now-last)/1000;last=now;
-let earned=rate()*dt;state.money+=earned;state.totalEarned+=earned;updateQuests();
-if(now-lastSave>2000){save();lastSave=now}
-render();requestAnimationFrame(loop)
-}
-resize();render();showPanel("build");requestAnimationFrame(loop);
+function loop(now){const dt=Math.min((now-last)/1000,1);last=now;const t=totals();state.money+=t.income*dt;state.totalEarned+=t.income*dt;if(now-lastSave>2000){save();lastSave=now}if(!$('game').classList.contains('hidden'))updateUI();requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+if(localStorage.getItem('my_clicker_save'))$('continueBtn').classList.remove('disabled');else $('continueBtn').classList.add('disabled');
 </script>
 </body>
 </html>
