@@ -18,6 +18,8 @@ function initWorld(){
   renderer=new CityRenderer3D(document.getElementById("world-canvas"),manager.state);
   world=new WorldController(worldEl,manager.state,renderer);
   const economy=new Economy(manager.state);
+  economy.startIncome();
+  window.cityEconomy=economy;
   buildings=new BuildingSystem(manager.state,economy,world);
   roads=new RoadSystem(manager.state,economy,world);
   vehicles=new VehicleSystem(manager.state,world,renderer);
@@ -27,6 +29,11 @@ function initWorld(){
 window.addEventListener("game:shown",initWorld);
 
 window.addEventListener("ui:tab",e=>{
+  if(e.detail.tab==="economy"&&window.cityEconomy){
+    e.detail.panel.dataset.tab="economy";
+    window.dispatchEvent(new CustomEvent("ui:economy-refresh",{detail:{panel:e.detail.panel,economy:window.cityEconomy}}));
+    return;
+  }
   if(e.detail.tab!=="build"||!buildings||!roads)return;
   const panel=e.detail.panel;
   const cards=buildings.getCatalog().map(b=>`<button class="build-card" data-build="${b.id}"><span class="build-card__icon">${b.icon}</span><span><strong>${b.name}</strong><small>${b.description}</small></span><b>${b.cost.toLocaleString("ru-RU")} ₽</b></button>`).join("");
