@@ -123,8 +123,24 @@ ctx.font=Math.max(16,23*s)+'px Arial';ctx.textAlign='center';ctx.textBaseline='m
 if(level>1){ctx.fillStyle='#fff';ctx.font='700 10px Arial';ctx.fillText('★ '+level,x,y+h*.67)}
 }
 function fountain(){const q=iso(0,0),r=Math.min(W,H)*.105;ctx.fillStyle='rgba(50,55,45,.2)';ctx.beginPath();ctx.ellipse(q.x+4,q.y+8,r*1.08,r*.55,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#c9bea9';ctx.beginPath();ctx.ellipse(q.x,q.y,r*1.08,r*.58,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#70b6c1';ctx.beginPath();ctx.ellipse(q.x,q.y,r*.82,r*.43,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#f7f1e6';ctx.lineWidth=4;ctx.stroke();ctx.fillStyle='#d9cfbf';ctx.beginPath();ctx.ellipse(q.x,q.y-r*.18,r*.22,r*.11,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(q.x,q.y-r*.18);ctx.quadraticCurveTo(q.x-7,q.y-r*.55,q.x,q.y-r*.7);ctx.quadraticCurveTo(q.x+7,q.y-r*.55,q.x,q.y-r*.18);ctx.stroke()}
+function drawDistrictDecor(){
+  const roads=[[-6,-6,6,-6],[-6,-3,6,-3],[-6,0,6,0],[-6,3,6,3],[-6,6,6,6],[-6,-6,-6,6],[-3,-6,-3,6],[0,-6,0,6],[3,-6,3,6],[6,-6,6,6]];
+  ctx.save();
+  roads.forEach(r=>{
+    const a=iso(r[0],r[1]),b=iso(r[2],r[3]);
+    ctx.strokeStyle='rgba(62,70,55,.16)';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(a.x,a.y+9);ctx.lineTo(b.x,b.y+9);ctx.stroke();
+    ctx.strokeStyle='#eee4cf';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(a.x,a.y+7);ctx.lineTo(b.x,b.y+7);ctx.stroke();
+  });
+  for(let i=0;i<16;i++){
+    const gx=-5.5+(i%8)*1.55,gy=-5.4+Math.floor(i/8)*10;
+    const p=iso(gx,gy);
+    ctx.fillStyle='#8b7658';ctx.fillRect(p.x-2,p.y-12,4,12);
+    ctx.fillStyle='#d7c9a5';ctx.beginPath();ctx.arc(p.x,p.y-15,5,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+}
 function draw(){ctx.clearRect(0,0,W,H);clampCam();ctx.fillStyle='#8eae7a';ctx.fillRect(0,0,W,H);ctx.save();ctx.translate(W/2+cam.x,H/2+cam.y);ctx.scale(cam.z,cam.z);ctx.translate(-W/2,-H/2);
-ctx.fillStyle='#e8dfcc';poly([{x:35,y:30},{x:W-35,y:30},{x:W-55,y:H-30},{x:55,y:H-30}],'#e8dfcc','#cfc4ad');
+ctx.fillStyle='#e8dfcc';poly([{x:35,y:30},{x:W-35,y:30},{x:W-55,y:H-30},{x:55,y:H-30}],'#e8dfcc','#cfc4ad');drawDistrictDecor();
 const L=60,R=W-60,T=90,B=H-70,M=W/2;
 function road(x1,y1,x2,y2){
 ctx.strokeStyle='rgba(62,70,55,.13)';ctx.lineWidth=49;ctx.beginPath();ctx.moveTo(x1+3,y1+4);ctx.lineTo(x2+3,y2+4);ctx.stroke();
