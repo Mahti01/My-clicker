@@ -1,3 +1,69 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Построй город</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Inter,Arial,sans-serif;background:#a9cdd8;color:#18231f}
+body{overscroll-behavior:none}
+#game{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
+.ui{position:fixed;inset:0;pointer-events:none}
+.top{position:absolute;left:14px;top:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.stats{display:flex;gap:7px;flex-wrap:wrap}.card,.level,.income,.build{background:rgba(255,255,255,.94);border:1px solid rgba(25,40,35,.08);box-shadow:0 8px 28px rgba(28,45,42,.14);backdrop-filter:blur(8px)}
+.card{padding:8px 12px;border-radius:14px;min-width:90px;font-size:10px;color:#65716d}.card b{display:block;color:#18231f;font-size:15px;margin-top:2px}.level{padding:10px 13px;border-radius:14px;text-align:right;font-size:13px}.level small{display:block;color:#68736f;margin-top:3px}
+.tabs{position:absolute;right:14px;top:112px;display:grid;grid-template-columns:repeat(2,110px);gap:7px;pointer-events:auto}.tab{border:0;border-radius:12px;padding:9px 10px;background:rgba(255,255,255,.93);box-shadow:0 6px 20px rgba(28,45,42,.12);font-size:11px;text-align:left}.tab span{font-size:17px;margin-right:5px}.tab.active{background:#17231f;color:#fff}
+.bottom{position:absolute;left:14px;right:14px;bottom:14px;display:flex;align-items:flex-end;gap:10px}.income{padding:10px 13px;border-radius:14px;min-width:145px}.income small{display:block;color:#68736f;font-size:10px}.income b{font-size:16px}
+.builds{display:flex;gap:7px;overflow:auto;padding:2px;pointer-events:auto;max-width:calc(100% - 160px)}.build{min-width:100px;padding:9px;border:0;border-radius:14px;text-align:left}.build:disabled{opacity:.43}.ico{font-size:23px}.build b{display:block;font-size:12px}.build span{font-size:10px;color:#68736f}.build.active{outline:2px solid #17231f}
+.hint{position:absolute;top:84px;left:50%;transform:translateX(-50%);background:#17231edd;color:#fff;padding:8px 13px;border-radius:20px;font-size:12px;opacity:0;transition:.2s}.hint.show{opacity:1}
+.reset{position:absolute;right:14px;bottom:82px;border:0;background:rgba(255,255,255,.9);padding:7px 10px;border-radius:10px;font-size:10px;pointer-events:auto}
+.panel{position:absolute;right:14px;top:195px;width:226px;background:rgba(255,255,255,.96);border-radius:16px;padding:13px;box-shadow:0 12px 35px rgba(28,45,42,.18);display:none;pointer-events:auto;font-size:12px}.panel.show{display:block}.panel h3{margin:0 0 8px;font-size:15px}.panel p{margin:5px 0;color:#68736f;line-height:1.35}
+@media(max-width:700px){.top{left:9px;right:9px;top:9px}.card{min-width:72px;padding:7px 9px}.card b{font-size:13px}.level{padding:8px 10px}.tabs{right:9px;top:102px;grid-template-columns:repeat(2,88px);gap:5px}.tab{padding:7px 8px;font-size:10px}.bottom{left:9px;right:9px;bottom:9px}.income{min-width:125px;padding:9px}.builds{max-width:calc(100% - 135px)}.build{min-width:88px}.reset{bottom:72px;right:9px}}
+
+.building-card{margin-top:10px;padding:10px;border-radius:12px;background:#f4f6f3;border:1px solid #e4e9e5}
+.building-card h4{margin:0 0 6px;font-size:13px}.mini{font-size:10px;color:#68736f;margin:3px 0}
+.action{width:100%;border:0;border-radius:10px;padding:9px;margin-top:7px;background:#17231f;color:#fff;font-size:11px}.action:disabled{opacity:.4}
+.quest{padding:8px 0;border-bottom:1px solid #e8ece9}.quest:last-child{border:0}.quest b{font-size:11px}.quest small{display:block;color:#68736f;margin-top:3px}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div class="ui">
+<div class="top">
+<div class="stats">
+<div class="card">💰 Деньги<b id="money">1 000</b></div>
+<div class="card">👥 Жители<b id="pop">0</b></div>
+<div class="card">📈 Доход<b id="rate">+0/сек</b></div>
+</div>
+<div class="level"><b id="level">Город 1</b><small id="xp">0 / 100 XP</small></div>
+</div>
+<div id="tabs" class="tabs">
+<button class="tab active" data-panel="build"><span>🏗️</span>Строительство</button>
+<button class="tab" data-panel="city"><span>🏙️</span>Город</button>
+<button class="tab" data-panel="stats"><span>📊</span>Статистика</button>
+<button class="tab" data-panel="settings"><span>⚙️</span>Настройки</button>
+</div>
+<div id="panel" class="panel"></div>
+<div id="hint" class="hint">Выберите здание</div>
+<div class="bottom">
+<div class="income"><small>Доход города</small><b id="income">0 монет / сек</b></div>
+<div id="builds" class="builds"></div>
+</div>
+<button id="reset" class="reset">Сбросить</button>
+</div>
+<script>
+const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+let W=innerWidth,H=innerHeight,dpr=1;
+const types=[
+{id:"house",name:"Дом",ico:"🏠",cost:150,income:2,pop:12,xp:20,color:"#c99b7c",h:45},
+{id:"shop",name:"Магазин",ico:"🏪",cost:400,income:7,pop:4,xp:35,color:"#cf8f62",h:58},
+{id:"office",name:"Офис",ico:"🏢",cost:900,income:18,pop:8,xp:60,color:"#7d9da7",h:88},
+{id:"park",name:"Парк",ico:"🌳",cost:600,income:1,pop:20,xp:45,color:"#83a777",h:28},
+{id:"cafe",name:"Кафе",ico:"☕",cost:750,income:11,pop:5,xp:50,color:"#b88b67",h:52}
+];
+let state=JSON.parse(localStorage.getItem("city_builder")||"null")||{money:1000,pop:0,xp:0,level:1,buildings:[],totalEarned:0,quests:{home:false,people:false,money:false}};
+state.totalEarned=state.totalEarned||0; state.quests=state.quests||{home:false,people:false,money:false};
+let selectedBuilding=null;
 const TILE_W=32,TILE_H=16;
 let cam={x:W/2,y:H/2+30,z:.78},drag=null,selected=null;
 function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(dpr,0,0,dpr,0,0);if(!cam.x)cam.x=W/2;if(!cam.y)cam.y=H/2+30;draw()}
@@ -66,163 +132,6 @@ ctx.fillStyle="#e9f1e8";for(let yy=0;yy<2;yy++){ctx.fillRect(-17*s,-h*.47+yy*17*
 ctx.font=Math.max(19,27*s)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(t.ico,0,-h*.68);ctx.restore();
 }
 function draw(){ctx.clearRect(0,0,W,H);drawGround();drawRoads();drawMapDetails();state.buildings.slice().sort((a,b)=>a.x+a.y-(b.x+b.y)).forEach(drawBuilding)}
-function findBuildingAt(px,py){
-let g=grid(px,py),best=null;
-for(let b of state.buildings){if(b.x===g.x&&b.y===g.y)best=b}
-return best;
-}
-function fmt(n){return Math.floor(n).toLocaleString("ru-RU")}
-function rate(){return state.buildings.reduce((a,b)=>{let t=types.find(t=>t.id===b.type);return a+(t?.income||0)*(1+(b.level-1)*0.35)},0)}
-function upgradeCost(b){let t=types.find(x=>x.id===b.type);return Math.floor(t.cost*(1+b.level*.75))}
-function buildingInfo(b){let t=types.find(x=>x.id===b.type);return {t,income:Math.floor(t.income*(1+(b.level-1)*.35)),cost:upgradeCost(b)}}
-function save(){localStorage.setItem("city_builder",JSON.stringify(state))}
-function render(){
-money.textContent=fmt(state.money);pop.textContent=fmt(state.pop);rateEl.textContent="+"+fmt(rate())+"/сек";income.textContent=fmt(rate())+" монет / сек";level.textContent="Город "+state.level;xp.textContent=fmt(state.xp)+" / "+state.level*100+" XP";
-builds.innerHTML="";
-types.forEach(t=>{let b=document.createElement("button");b.className="build"+(selected===t.id?" active":"");b.disabled=state.money<t.cost;b.innerHTML='<div class="ico">'+t.ico+'</div><b>'+t.name+'</b><span>'+fmt(t.cost)+' 💰 · +'+t.income+'/сек</span>';b.onclick=()=>{selected=selected===t.id?null:t.id;selectedBuilding=null;hint.textContent=selected?"Нажмите на клетку":"Выберите здание";hint.classList.add("show");setTimeout(()=>hint.classList.remove("show"),1300);render()};builds.appendChild(b)});
-save();draw()
-}
-function showPanel(name){
-if(name==="build"){panel.innerHTML="<h3>🏗️ Строительство</h3><p>Выберите здание снизу и нажмите на свободную клетку.</p><p>Перетаскивайте карту для обзора города, колесом мыши или жестом меняйте масштаб.</p>"}
-if(name==="city"){panel.innerHTML="<h3>🏙️ Ваш город</h3><p>Уровень: <b>"+state.level+"</b></p><p>Жителей: <b>"+fmt(state.pop)+"</b></p><p>Построено: <b>"+state.buildings.length+"</b></p>"}
-if(name==="stats"){panel.innerHTML="<h3>📊 Статистика</h3><p>Доход: <b>"+fmt(rate())+" 💰/сек</b></p><p>Зданий: <b>"+fmt(state.buildings.length)+"</b></p><p>XP: <b>"+fmt(state.xp)+"</b></p><p>Всего заработано: <b>"+fmt(state.totalEarned)+" 💰</b></p>"}
-if(name==="city"){panel.innerHTML="<h3>🏙️ Ваш город</h3><p>Уровень: <b>"+state.level+"</b></p><p>Жителей: <b>"+fmt(state.pop)+"</b></p><p>Построено: <b>"+state.buildings.length+"</b></p><div class='quest'><b>🏠 Первые дома</b><small>"+(state.quests.home?"Выполнено · +500 💰":"Постройте 5 домов · награда 500 💰")+"</small></div><div class='quest'><b>👥 Растущий город</b><small>"+(state.quests.people?"Выполнено · +1 000 💰":"Достигните 100 жителей · награда 1 000 💰")+"</small></div><div class='quest'><b>💰 Крупный оборот</b><small>"+(state.quests.money?"Выполнено · +2 500 💰":"Заработайте 10 000 💰 · награда 2 500 💰")+"</small></div>"}
-if(name==="settings"){panel.innerHTML="<h3>⚙️ Настройки</h3><p>Прогресс хранится локально на устройстве.</p><p>Кнопка «Сбросить» полностью начинает город заново.</p>"}
-panel.classList.add("show")
-}
-document.querySelectorAll(".tab").forEach(btn=>btn.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));btn.classList.add("active");showPanel(btn.dataset.panel)});
-canvas.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,moved:false};canvas.setPointerCapture(e.pointerId)});
-canvas.addEventListener("pointermove",e=>{if(drag){let dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>5)drag.moved=true;cam.x=drag.cx+dx;cam.y=drag.cy+dy;draw()}});
-canvas.addEventListener("pointerup",e=>{
-if(!drag||drag.moved){drag=null;return}
-let g=grid(e.clientX,e.clientY);drag=null;
-if(!selected){selectedBuilding=findBuildingAt(e.clientX,e.clientY);showBuildingPanel();return;}
-if(Math.abs(g.x)>9||Math.abs(g.y)>9){toast("Можно строить только в пределах города");return}
-if(state.buildings.some(b=>b.x===g.x&&b.y===g.y)){toast("Эта клетка занята");return}
-let t=types.find(x=>x.id===selected);if(state.money<t.cost){toast("Недостаточно денег");return}
-state.money-=t.cost;state.pop+=t.pop;state.xp+=t.xp;let need=state.level*100;
-if(state.xp>=need){state.xp-=need;state.level++;toast("🎉 Новый уровень! Город "+state.level)}
-state.buildings.push({type:t.id,x:g.x,y:g.y,level:1});selected=null;selectedBuilding=null;render();
-});
-canvas.addEventListener("dblclick",e=>{let b=findBuildingAt(e.clientX,e.clientY);if(b){selectedBuilding=b;selected=null;showBuildingPanel()}});
-canvas.addEventListener("wheel",e=>{e.preventDefault();let old=cam.z;cam.z=Math.max(.65,Math.min(1.7,cam.z*(e.deltaY<0?1.1:.9)));let mx=e.clientX,my=e.clientY;cam.x=mx+(cam.x-mx)*cam.z/old;cam.y=my+(cam.y-my)*cam.z/old;draw()},{passive:false});
-let toastTimer;function toast(t){hint.textContent=t;hint.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>hint.classList.remove("show"),1500)}
-reset.onclick=()=>{if(confirm("Начать город заново?")){localStorage.removeItem("city_builder");location.reload()}};
-const money=document.getElementById("money"),pop=document.getElementById("pop"),rateEl=document.getElementById("rate"),income=document.getElementById("income"),level=document.getElementById("level"),xp=document.getElementById("xp"),builds=document.getElementById("builds"),hint=document.getElementById("hint"),panel=document.getElementById("panel"),reset=document.getElementById("reset");
-function showBuildingPanel(){
-if(!selectedBuilding){panel.classList.remove("show");return}
-let {t,income,cost}=buildingInfo(selectedBuilding);
-panel.innerHTML='<h3>'+t.ico+' '+t.name+'</h3>'+
-'<div class="building-card"><h4>Уровень '+selectedBuilding.level+'</h4>'+
-'<div class="mini">Доход: +'+income+' 💰/сек</div>'+
-'<div class="mini">Население: +'+t.pop+'</div>'+
-'<div class="mini">Следующее улучшение: '+fmt(cost)+' 💰</div>'+
-'<button class="action" id="upgrade" '+(state.money<cost?'disabled':'')+'>⬆️ Улучшить</button>'+
-'<button class="action" id="closeBuild" style="background:#e8ece9;color:#17231f">Закрыть</button></div>';
-panel.classList.add("show");
-document.getElementById("upgrade").onclick=()=>{
- if(state.money<cost)return toast("Недостаточно денег");
- state.money-=cost;selectedBuilding.level++;state.xp+=Math.floor(t.xp*.6);save();render();showBuildingPanel();toast("⬆️ Здание улучшено до уровня "+selectedBuilding.level);
-};
-document.getElementById("closeBuild").onclick=()=>{selectedBuilding=null;panel.classList.remove("show")};
-}
-function updateQuests(){
-let q=state.quests;
-if(!q.home&&state.buildings.filter(b=>b.type==="house").length>=5){q.home=true;state.money+=500;toast("🏠 Задание выполнено: +500 💰")}
-if(!q.people&&state.pop>=100){q.people=true;state.money+=1000;toast("👥 100 жителей: +1 000 💰")}
-if(!q.money&&state.totalEarned>=10000){q.money=true;state.money+=2500;toast("💰 Заработано 10 000: +2 500 💰")}
-}
-let last=performance.now(),lastSave=performance.now();
-function loop(now){
-let dt=(now-last)/1000;last=now;
-let earned=rate()*dt;state.money+=earned;state.totalEarned+=earned;updateQuests();
-if(now-lastSave>2000){save();lastSave=now}
-render();requestAnimationFrame(loop)
-}
-resize();render();showPanel("build");requestAnimationFrame(loop);
-</script>
-</body>
-</html>const TILE_W=70,TILE_H=70;
-let cam={x:W/2,y:H/2+40,z:.72},drag=null,selected=null;
-
-function resize(){
-dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;
-canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+"px";canvas.style.height=H+"px";
-ctx.setTransform(dpr,0,0,dpr,0,0);if(!cam.x)cam.x=W/2;if(!cam.y)cam.y=H/2+40;draw()
-}
-function iso(x,y){return{x:cam.x+x*TILE_W*cam.z,y:cam.y+y*TILE_H*cam.z}}
-function grid(px,py){return{x:Math.round((px-cam.x)/(TILE_W*cam.z)),y:Math.round((py-cam.y)/(TILE_H*cam.z))}}
-function diamond(x,y,fill,stroke){
-let p=iso(x,y),w=TILE_W*cam.z,h=TILE_H*cam.z;
-ctx.fillStyle=fill;ctx.fillRect(p.x-w/2,p.y-h/2,w,h);
-if(stroke){ctx.strokeStyle=stroke;ctx.strokeRect(p.x-w/2,p.y-h/2,w,h)}
-}
-function drawGround(){
-for(let x=-14;x<=14;x++)for(let y=-14;y<=14;y++){
-let water=Math.abs(x)>=13||Math.abs(y)>=13;
-let plaza=Math.abs(x)<=1&&Math.abs(y)<=1;
-let green=((x*7+y*11)%17===0);
-let fill=water?(((x+y)&1)?"#86bcc9":"#91c4cf"):(plaza?"#ded7c6":(green?"#a8c88f":(((x+y)&1)?"#c3d9b1":"#bdd4ac")));
-diamond(x,y,fill,water?"#ffffff25":"#71866c25");
-}
-}
-function drawRoads(){
-let s=cam.z;
-for(let x=-12;x<=12;x+=3){
-let p=iso(x,0);
-ctx.fillStyle="#aaa79f";ctx.fillRect(p.x-12*s,p.y-12*TILE_H*13*s/2,p.x*0+24*s,TILE_H*13*s);
-ctx.fillStyle="#e7e1d3";ctx.fillRect(p.x-1*s,p.y-12*TILE_H*13*s/2,2*s,TILE_H*13*s);
-}
-for(let y=-12;y<=12;y+=3){
-let p=iso(0,y);
-ctx.fillStyle="#aaa79f";ctx.fillRect(p.x-12*TILE_W*13*s/2,p.y-12*s,TILE_W*13*s,24*s);
-ctx.fillStyle="#e7e1d3";ctx.fillRect(p.x-12*TILE_W*13*s/2,p.y-1*s,TILE_W*13*s,2*s);
-}
-}
-function drawMapDetails(){
-let s=cam.z;
-for(let x=-12;x<=12;x++)for(let y=-12;y<=12;y++){
-if(x%3===0||y%3===0)continue;
-if((x*5+y*3)%19===0){
-let p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);
-ctx.fillStyle="#72573e";ctx.fillRect(-3*s,5*s,6*s,16*s);
-ctx.fillStyle="#4e8456";ctx.beginPath();
-ctx.arc(0,-2*s,13*s,0,Math.PI*2);ctx.arc(-9*s,3*s,9*s,0,Math.PI*2);ctx.arc(9*s,3*s,9*s,0,Math.PI*2);ctx.fill();ctx.restore();
-}
-}
-let p=iso(0,0),s2=cam.z;
-ctx.save();ctx.translate(p.x,p.y);
-ctx.fillStyle="#e4decf";ctx.fillRect(-65*s2,-65*s2,130*s2,130*s2);
-ctx.strokeStyle="#b9b09d";ctx.strokeRect(-65*s2,-65*s2,130*s2,130*s2);
-ctx.fillStyle="#8fb9bf";ctx.beginPath();ctx.arc(0,0,25*s2,0,Math.PI*2);ctx.fill();
-ctx.fillStyle="#d1ddd8";ctx.fillRect(-3*s2,-42*s2,6*s2,25*s2);ctx.restore();
-}
-function drawTree(x,y,s){
-let p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);
-ctx.fillStyle="#73543d";ctx.fillRect(-3*s,5*s,6*s,15*s);
-ctx.fillStyle="#4f8257";ctx.beginPath();ctx.arc(0,-2*s,13*s,0,Math.PI*2);ctx.arc(-8*s,3*s,9*s,0,Math.PI*2);ctx.arc(8*s,3*s,9*s,0,Math.PI*2);ctx.fill();ctx.restore();
-}
-function drawBuilding(b){
-let p=iso(b.x,b.y),t=types.find(x=>x.id===b.type),s=cam.z;
-let w=58*s,h=54*s;
-ctx.save();ctx.translate(p.x,p.y);
-if(selectedBuilding===b){ctx.strokeStyle="#f0c86a";ctx.lineWidth=4*s;ctx.strokeRect(-w/2-4*s,-h/2-4*s,w+8*s,h+8*s)}
-if(t.id==="park"){
-ctx.fillStyle="#9fc38a";ctx.fillRect(-w/2,-h/2,w,h);
-drawTree(0,0,s*.9);drawTree(-.22,.12,s*.65);drawTree(.22,.12,s*.65);
-ctx.restore();return;
-}
-ctx.fillStyle="#d8d3c7";ctx.fillRect(-w/2+3*s,-h/2+3*s,w,h);
-ctx.fillStyle=t.color;ctx.fillRect(-w/2,-h/2,w,h*.78);
-ctx.fillStyle="#edf3ed";
-for(let yy=-1;yy<=1;yy++)for(let xx=-1;xx<=1;xx++){
-ctx.fillRect(xx*16*s-5*s,yy*12*s-5*s,10*s,10*s);
-}
-ctx.fillStyle="#6d5948";ctx.fillRect(-7*s,h*.18,14*s,h*.22);
-ctx.font=Math.max(18,25*s)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(t.ico,0,-h*.38);
-ctx.restore();
-}
-function draw(){ctx.clearRect(0,0,W,H);drawGround();drawRoads();drawMapDetails();state.buildings.slice().sort((a,b)=>a.y-b.y).forEach(drawBuilding)}
 function findBuildingAt(px,py){
 let g=grid(px,py),best=null;
 for(let b of state.buildings){if(b.x===g.x&&b.y===g.y)best=b}
