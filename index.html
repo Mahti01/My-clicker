@@ -92,7 +92,8 @@ function totals(){let income=0,pop=0;state.buildings.forEach(b=>{if(!b)return;co
 function resize(){W=innerWidth;H=innerHeight;D=Math.min(devicePixelRatio||1,2);canvas.width=W*D;canvas.height=H*D;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(D,0,0,D,0,0);draw()}
 addEventListener('resize',resize);
 
-function clampCam(){const zx=Math.max(0,(cam.z-1)*W*.5),zy=Math.max(0,(cam.z-1)*H*.5);cam.x=Math.max(-zx,Math.min(zx,cam.x));cam.y=Math.max(-zy,Math.min(zy,cam.y))}\nfunction iso(a,b){const s=Math.min(W/12,H/17);return{x:W/2+(a-b)*s*.72,y:H/2+(a+b)*s*.34}}
+function clampCam(){const zx=Math.max(0,(cam.z-1)*W*.5),zy=Math.max(0,(cam.z-1)*H*.5);cam.x=Math.max(-zx,Math.min(zx,cam.x));cam.y=Math.max(-zy,Math.min(zy,cam.y))}
+function iso(a,b){const s=Math.min(W/12,H/17);return{x:W/2+(a-b)*s*.72,y:H/2+(a+b)*s*.34}}
 function poly(points,fill,stroke){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke()}}
 function tree(x,y,k=.6){ctx.fillStyle='#6b4b38';ctx.fillRect(x-2,y+7,4,19*k);ctx.fillStyle='#4f8154';ctx.beginPath();ctx.arc(x,y,14*k,0,Math.PI*2);ctx.fill();ctx.fillStyle='#76a45f';ctx.beginPath();ctx.arc(x-7*k,y-4,9*k,0,Math.PI*2);ctx.arc(x+7*k,y-3,10*k,0,Math.PI*2);ctx.fill()}
 function lamp(x,y){ctx.strokeStyle='#50483f';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x,y+16);ctx.lineTo(x,y-9);ctx.stroke();ctx.fillStyle='#f5d78b';ctx.beginPath();ctx.arc(x,y-11,5,0,Math.PI*2);ctx.fill()}
@@ -155,7 +156,8 @@ $('backBtn').onclick=()=>{$('game').classList.add('hidden');$('menu').classList.
 
 canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,moved:false};canvas.setPointerCapture?.(e.pointerId)});
 canvas.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>6)drag.moved=true;if(drag.moved){cam.x=drag.cx+dx;cam.y=drag.cy+dy;clampCam();draw()}});
-canvas.addEventListener('pointercancel',e=>{drag=null});\ncanvas.addEventListener('pointerup',e=>{if(!drag)return;if(!drag.moved){let best=-1,bd=999;plots.forEach((v,i)=>{const q=iso(v[0],v[1]),s=Math.min(W/12,H/17),w=s*1.55,h=s*.73,d=Math.abs((e.clientX-q.x)/w)+Math.abs((e.clientY-q.y)/h);if(d<1&&d<bd){bd=d;best=i}});if(best>=0){const b=state.buildings[best];if(b){toast(TYPES[b.type].icon+' '+TYPES[b.type].name+' · уровень '+b.level)}else if(activePanel==='build'){const t=TYPES[selectedType];if(state.money<t.cost)toast('Не хватает денег');else{state.money-=t.cost;state.buildings[best]={type:selectedType,level:1};state.xp+=t.xp;while(state.xp>=state.level*100){state.xp-=state.level*100;state.level++;toast('🎉 Новый уровень!')}save();toast(t.icon+' '+t.name+' построен');draw()}}}}drag=null});
+canvas.addEventListener('pointercancel',e=>{drag=null});
+canvas.addEventListener('pointerup',e=>{if(!drag)return;if(!drag.moved){let best=-1,bd=999;plots.forEach((v,i)=>{const q=iso(v[0],v[1]),s=Math.min(W/12,H/17),w=s*1.55,h=s*.73,d=Math.abs((e.clientX-q.x)/w)+Math.abs((e.clientY-q.y)/h);if(d<1&&d<bd){bd=d;best=i}});if(best>=0){const b=state.buildings[best];if(b){toast(TYPES[b.type].icon+' '+TYPES[b.type].name+' · уровень '+b.level)}else if(activePanel==='build'){const t=TYPES[selectedType];if(state.money<t.cost)toast('Не хватает денег');else{state.money-=t.cost;state.buildings[best]={type:selectedType,level:1};state.xp+=t.xp;while(state.xp>=state.level*100){state.xp-=state.level*100;state.level++;toast('🎉 Новый уровень!')}save();toast(t.icon+' '+t.name+' построен');draw()}}}}drag=null});
 canvas.addEventListener('wheel',e=>{e.preventDefault();cam.z=Math.max(.72,Math.min(1.55,cam.z*(e.deltaY<0?1.08:.92)));clampCam();draw()},{passive:false});
 
 let last=performance.now(),lastSave=performance.now();
