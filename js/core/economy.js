@@ -36,6 +36,7 @@ export class Economy{
       const perMinute=this.getIncomePerMinute();
       const payout=perMinute/12;
       if(payout>0)this.earn(payout);
+      window.dispatchEvent(new CustomEvent("economy:updated",{detail:{incomePerMinute:perMinute}}));
     },5000);
   }
 }
