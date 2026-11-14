@@ -82,7 +82,7 @@ shop:{name:'Магазин',icon:'🏪',cost:400,income:7,pop:4,xp:35,color:'#d9
 office:{name:'Офис',icon:'🏢',cost:900,income:18,pop:8,xp:60,color:'#a9c8d0',roof:'#52676d'},
 park:{name:'Парк',icon:'🌳',cost:600,income:1,pop:20,xp:45,color:'#88b476',roof:'#648a5c'}
 };
-const plots=[[-3,-3],[0,-3],[3,-3],[-3,-1],[3,-1],[-3,1],[3,1],[-3,3],[0,3],[3,3],[-5,0],[5,0],[-5,3],[5,3]];
+const plots=[[-6,-6],[-3,-6],[0,-6],[3,-6],[6,-6],[-6,-3],[-3,-3],[0,-3],[3,-3],[6,-3],[-6,0],[-3,0],[3,0],[6,0],[-6,3],[-3,3],[0,3],[3,3],[6,3],[-6,6],[-3,6],[0,6],[3,6],[6,6]];
 let state=JSON.parse(localStorage.getItem('my_clicker_save')||'null')||{money:1000,buildings:Array(14).fill(null),xp:0,level:1,totalEarned:0};
 if(!Array.isArray(state.buildings)||state.buildings.length!==14)state.buildings=Array(14).fill(null);
 
@@ -92,8 +92,8 @@ function totals(){let income=0,pop=0;state.buildings.forEach(b=>{if(!b)return;co
 function resize(){W=innerWidth;H=innerHeight;D=Math.min(devicePixelRatio||1,2);canvas.width=W*D;canvas.height=H*D;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(D,0,0,D,0,0);draw()}
 addEventListener('resize',resize);
 
-function clampCam(){const zx=W*.28*cam.z,zy=H*.22*cam.z;cam.x=Math.max(-zx,Math.min(zx,cam.x));cam.y=Math.max(-zy,Math.min(zy,cam.y))}
-function iso(a,b){const s=Math.min(W/12,H/17);return{x:W/2+(a-b)*s*.72,y:H/2+(a+b)*s*.34}}
+function clampCam(){const zx=Math.max(24,W*.30*(cam.z-.72)+W*.08),zy=Math.max(20,H*.24*(cam.z-.72)+H*.07);cam.x=Math.max(-zx,Math.min(zx,cam.x));cam.y=Math.max(-zy,Math.min(zy,cam.y))}
+function iso(a,b){const s=Math.min(W/16,H/22);return{x:W/2+(a-b)*s*.72,y:H/2+(a+b)*s*.34}}
 function poly(points,fill,stroke){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke()}}
 function tree(x,y,k=.6){ctx.fillStyle='#6b4b38';ctx.fillRect(x-2,y+7,4,19*k);ctx.fillStyle='#4f8154';ctx.beginPath();ctx.arc(x,y,14*k,0,Math.PI*2);ctx.fill();ctx.fillStyle='#76a45f';ctx.beginPath();ctx.arc(x-7*k,y-4,9*k,0,Math.PI*2);ctx.arc(x+7*k,y-3,10*k,0,Math.PI*2);ctx.fill()}
 function lamp(x,y){ctx.strokeStyle='#50483f';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x,y+16);ctx.lineTo(x,y-9);ctx.stroke();ctx.fillStyle='#f5d78b';ctx.beginPath();ctx.arc(x,y-11,5,0,Math.PI*2);ctx.fill()}
@@ -130,9 +130,9 @@ function road(x1,y1,x2,y2){
 ctx.strokeStyle='rgba(62,70,55,.13)';ctx.lineWidth=49;ctx.beginPath();ctx.moveTo(x1+3,y1+4);ctx.lineTo(x2+3,y2+4);ctx.stroke();
 ctx.strokeStyle='#d2c7b2';ctx.lineWidth=44;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
 ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
-road(L,T,R,T);road(L,H/2,R,H/2);road(L,B,R,B);road(L,T,L,B);road(M,T,M,B);road(R,T,R,B);
+road(L,T,R,T);road(L,H/2,R,H/2);road(L,B,R,B);road(L,T,L,B);road(M,T,M,B);road(R,T,R,B);road(L,H*.25,R,H*.25);road(L,H*.75,R,H*.75);
 plots.forEach((v,i)=>{const q=iso(v[0],v[1]),s=Math.min(W/12,H/17),w=s*1.55,h=s*.73;poly([{x:q.x,y:q.y-h},{x:q.x+w,y:q.y},{x:q.x,y:q.y+h},{x:q.x-w,y:q.y}], '#b7d597','#809b69');tree(q.x-w*.58,q.y-h*.18,.42);tree(q.x+w*.58,q.y-h*.12,.38);if(state.buildings[i])building(q.x,q.y,state.buildings[i].type,state.buildings[i].level);else{ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(255,255,255,.75)';ctx.beginPath();ctx.moveTo(q.x,q.y-h*.45);ctx.lineTo(q.x+w*.45,q.y);ctx.lineTo(q.x,q.y+h*.45);ctx.lineTo(q.x-w*.45,q.y);ctx.closePath();ctx.stroke();ctx.setLineDash([])}})
-fountain();for(let i=0;i<5;i++)lamp(W*.24+i*W*.13,H*.5);for(let i=0;i<7;i++)tree(45+i*(W-90)/6,62+(i%2)*8,.62);for(let i=0;i<6;i++)tree(55+i*(W-110)/5,H-53-(i%2)*7,.62);
+fountain();for(let i=0;i<8;i++)lamp(W*.16+i*W*.10,H*.5);for(let i=0;i<12;i++)tree(35+i*(W-70)/11,55+(i%3)*9,.58);for(let i=0;i<10;i++)tree(42+i*(W-84)/9,H-50-(i%3)*8,.58);for(let i=0;i<6;i++)tree(38,H*.18+i*H*.12,.52);for(let i=0;i<6;i++)tree(W-38,H*.18+i*H*.12,.52);
 ctx.restore();updateUI()}
 function updateUI(){const t=totals();$('money').textContent=fmt(state.money);$('pop').textContent=fmt(t.pop);$('rate').textContent='+'+fmt(t.income)+'/сек';$('income').textContent=fmt(t.income)+' монет / сек';$('level').textContent='Город '+state.level;$('xp').textContent=fmt(state.xp)+' / '+state.level*100+' XP';renderBuildBar()}
 function renderBuildBar(){const el=$('buildbar');el.innerHTML='';if(activePanel!=='build'){el.style.display='none';return}el.style.display='flex';Object.entries(TYPES).forEach(([id,t])=>{const b=document.createElement('button');b.className='build'+(id===selectedType?' active':'');b.disabled=state.money<t.cost;b.innerHTML='<i>'+t.icon+'</i><b>'+t.name+'</b><small>'+fmt(t.cost)+' 💰 · +'+t.income+'/сек</small>';b.onclick=()=>{selectedType=id;renderBuildBar()};el.appendChild(b)})}
