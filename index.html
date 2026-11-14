@@ -327,7 +327,7 @@ function showBuildingPanel(index){
   }}
   renderBuildBar();
 }
-function panel(name){activePanel=name;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.panel===name));const p=$('sidePanel');p.classList.add('show');
+function panel(name){activePanel=name;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.panel===name));const p=$('sidePanel');p.classList.add('show');p.style.display='block';
 if(name==='build')p.innerHTML='<h3>🏗️ Строительство</h3><p>Выберите здание снизу, затем нажмите на свободный участок.</p><p>Чем больше жителей, тем выше бонус к доходу города.</p><p>Карту можно перемещать свайпом. Масштабирование: двумя пальцами.</p>';
 if(name==='city'){const t=totals();const next=state.level*100-state.xp;p.innerHTML='<h3>🏙️ Ваш город</h3><p>Уровень: <b>'+state.level+'</b></p><p>Жителей: <b>'+fmt(t.pop)+'</b></p><p>Построено: <b>'+state.buildings.filter(Boolean).length+' / '+plots.length+'</b></p><p>Бонус города: <b>+'+Math.round((t.cityBonus-1)*100)+'%</b></p><p>До следующего уровня: <b>'+fmt(next)+' XP</b></p>'}
 if(name==='stats'){const t=totals();p.innerHTML='<h3>📊 Статистика</h3><p>Базовый доход: <b>'+fmt(t.baseIncome)+' 💰/сек</b></p><p>Бонус жителей: <b>+'+Math.round((t.cityBonus-1)*100)+'%</b></p><p>Итоговый доход: <b>'+fmt(t.income)+' 💰/сек</b></p><p>Жителей: <b>'+fmt(t.pop)+'</b></p><p>Зданий: <b>'+state.buildings.filter(Boolean).length+'</b></p><p>Всего заработано: <b>'+fmt(state.totalEarned)+' 💰</b></p>'}
