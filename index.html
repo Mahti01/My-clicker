@@ -21,12 +21,12 @@ button{font:inherit;cursor:pointer}body{overscroll-behavior:none}
 .hud{position:absolute;z-index:10;pointer-events:none;left:14px;right:14px;top:max(12px,env(safe-area-inset-top));display:flex;justify-content:space-between;gap:10px;pointer-events:none}
 .stats{display:flex;gap:7px}.card,.level,.side-panel,.buildbar,.back{background:rgba(250,249,242,.94);border:1px solid rgba(255,255,255,.65);box-shadow:0 9px 28px rgba(35,50,38,.15);backdrop-filter:blur(10px)}
 .card{padding:8px 11px;border-radius:14px;min-width:88px}.card small{display:block;color:#69736e;font-size:9px}.card b{display:block;font-size:15px;margin-top:2px}.level{border-radius:14px;padding:9px 12px;text-align:right}.level b{font-size:14px}.level small{display:block;color:#69736e;font-size:9px;margin-top:2px}
-.tabs{position:absolute;z-index:100;right:14px;top:104px;display:flex;flex-direction:column;gap:7px;pointer-events:auto;touch-action:manipulation;width:112px}.tab{position:relative;z-index:101;box-sizing:border-box;border:0;border-radius:12px;background:rgba(250,249,242,.96);padding:8px 8px;text-align:left;font-size:9.5px;line-height:1;box-shadow:0 7px 22px rgba(35,50,38,.12);width:112px;min-height:44px;display:flex;align-items:center;white-space:nowrap;overflow:hidden}.tab span{display:inline-flex;flex:0 0 20px;width:20px;font-size:15px;margin-right:3px;align-items:center;justify-content:center}.tab.active{background:#1b2821;color:#fff}
+.game-controls{position:absolute;z-index:110;left:50%;top:calc(max(12px,env(safe-area-inset-top)) + 62px);transform:translateX(-50%);display:flex;gap:5px;background:rgba(250,249,242,.92);padding:5px;border-radius:13px;box-shadow:0 8px 24px rgba(35,50,38,.14);pointer-events:auto;touch-action:manipulation}.game-controls button{border:0;border-radius:9px;background:#edf0e8;color:#39453e;padding:7px 9px;font-size:10px;font-weight:700;min-width:58px}.game-controls button.active{background:#1b2821;color:#fff}.game-controls button:disabled{opacity:.45}.tabs{position:absolute;z-index:100;right:14px;top:104px;display:flex;flex-direction:column;gap:7px;pointer-events:auto;touch-action:manipulation;width:112px}.tab{position:relative;z-index:101;box-sizing:border-box;border:0;border-radius:12px;background:rgba(250,249,242,.96);padding:8px 8px;text-align:left;font-size:9.5px;line-height:1;box-shadow:0 7px 22px rgba(35,50,38,.12);width:112px;min-height:44px;display:flex;align-items:center;white-space:nowrap;overflow:hidden}.tab span{display:inline-flex;flex:0 0 20px;width:20px;font-size:15px;margin-right:3px;align-items:center;justify-content:center}.tab.active{background:#1b2821;color:#fff}
 .side-panel{position:absolute;z-index:1000;left:14px;right:auto;top:104px;width:min(185px,calc(100vw - 150px));box-sizing:border-box;border-radius:14px;padding:11px 12px;background:rgba(250,249,242,.97);box-shadow:0 10px 28px rgba(35,50,38,.16);display:none;font-size:10px;line-height:1.25;pointer-events:auto;touch-action:auto}.side-panel.show{display:block}.panel-close{position:absolute;right:8px;top:7px;width:24px;height:24px;border:0;border-radius:8px;background:#edf0e8;color:#5f6963;font-size:17px;line-height:24px;padding:0}.panel-close{pointer-events:auto;touch-action:manipulation;z-index:5;cursor:pointer}.panel-close:active{transform:scale(.94)}.side-panel h3{margin:0 26px 7px 0;font-size:13px;line-height:1.15}.side-panel p{margin:5px 0;color:#69736e;line-height:1.3}
 .bottom{position:absolute;z-index:20;left:14px;right:14px;bottom:max(14px,env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:9px;pointer-events:none}.income{background:rgba(250,249,242,.94);border-radius:14px;padding:9px 12px;min-width:140px;box-shadow:0 8px 24px rgba(35,50,38,.14)}.income small{display:block;color:#69736e;font-size:9px}.income b{font-size:14px}.buildbar{display:flex;gap:6px;padding:7px;border-radius:15px;overflow:auto;max-width:calc(100% - 155px);pointer-events:auto}.build{border:0;background:#f0f1e9;border-radius:11px;padding:7px 9px;min-width:90px;text-align:left}.build.active{background:#1b2821;color:#fff}.build:disabled{opacity:.4}.build i{font-style:normal;font-size:18px}.build b{display:block;font-size:10px}.build small{font-size:8px;color:#758078}.build.active small{color:#d7ddd8}
 .back{position:absolute;z-index:30;left:14px;top:calc(max(14px,env(safe-area-inset-top)) + 68px);border:0;border-radius:12px;padding:9px 12px;pointer-events:auto;font-size:11px}
 .toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);background:#1b2821;color:#fff;padding:12px 17px;border-radius:14px;opacity:0;pointer-events:none;transition:.18s;font-size:12px;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
-@media(max-width:700px){.hud{left:8px;right:8px}.stats{gap:4px}.card{min-width:72px;padding:7px 8px}.card b{font-size:12px}.level{padding:8px 9px}.tabs{right:8px;top:100px;grid-template-columns:92px 92px;gap:5px}.tab{padding:7px;font-size:9px}.bottom{left:8px;right:8px}.income{min-width:116px;padding:8px}.buildbar{max-width:calc(100% - 128px)}.build{min-width:82px}.side-panel{right:8px;top:204px;width:205px}.menu-card{padding:31px 22px 25px}.title{font-size:36px}}
+@media(max-width:700px){.game-controls{top:calc(max(12px,env(safe-area-inset-top)) + 61px);gap:3px;padding:4px}.game-controls button{padding:6px 7px;min-width:52px;font-size:9px}.hud{left:8px;right:8px}.stats{gap:4px}.card{min-width:72px;padding:7px 8px}.card b{font-size:12px}.level{padding:8px 9px}.tabs{right:8px;top:100px;grid-template-columns:92px 92px;gap:5px}.tab{padding:7px;font-size:9px}.bottom{left:8px;right:8px}.income{min-width:116px;padding:8px}.buildbar{max-width:calc(100% - 128px)}.build{min-width:82px}.side-panel{right:8px;top:204px;width:205px}.menu-card{padding:31px 22px 25px}.title{font-size:36px}}
 </style>
 </head>
 <body>
@@ -57,6 +57,11 @@ button{font:inherit;cursor:pointer}body{overscroll-behavior:none}
 <div class="card"><small>📈 Доход</small><b id="rate">+0/сек</b></div>
 </div>
 <div class="level"><b id="level">Город 1</b><small id="xp">0 / 100 XP</small></div>
+</div>
+<div id="gameControls" class="game-controls">
+<button id="pauseBtn" type="button">⏸ Пауза</button>
+<button id="startBtn" type="button">▶ Старт</button>
+<button id="speedBtn" type="button">×3</button>
 </div>
 <div class="tabs">
 <button class="tab active" data-panel="build"><span>🏗️</span>Строительство</button>
@@ -216,7 +221,7 @@ function crosswalk(x,y,horizontal=true){
 grid.slice(1,-1).forEach(v=>{crosswalk(v,-1.5);crosswalk(v,1.5);crosswalk(-1.5,v,false);crosswalk(1.5,v,false)});
 
 function movingCar(a,b,c,d,phase,color){
- const speed=.34, u=((animTime*speed+phase)%1);
+ const speed=.12, u=((animTime*speed+phase)%1);
  const x=a+(c-a)*u, y=b+(d-b)*u;
  const p=iso(x,y), q=iso(x+.12,y+.12);
  const ang=Math.atan2(q.y-p.y,q.x-p.x);
@@ -237,12 +242,6 @@ function pedestrians(){
    ctx.strokeStyle='#3e4c45';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(p.x,p.y-4);ctx.lineTo(p.x,p.y+2);ctx.stroke();
  });
 }
-movingCar(-7,-4.5,7,-4.5,0,'#c9574d');
-movingCar(7,1.5,-7,1.5,.45,'#4d78b8');
-movingCar(-4.5,-7,-4.5,7,.2,'#d5a84e');
-movingCar(1.5,7,1.5,-7,.7,'#f1f0e7');
-pedestrians();
-
 function plotCard(v,i){
  const q=iso(v[0],v[1]),w=s*2.05,h=s*.9;
  poly([{x:q.x,y:q.y-h},{x:q.x+w,y:q.y},{x:q.x,y:q.y+h},{x:q.x-w,y:q.y}], '#a8cc8b','#789766');
@@ -282,6 +281,13 @@ function plotCard(v,i){
  }
 }
 plots.forEach(plotCard);
+
+// Traffic is rendered after lots/buildings so cars stay visibly on top of the road layer.
+movingCar(-7,-4.5,7,-4.5,0,'#c9574d');
+movingCar(7,1.5,-7,1.5,.45,'#4d78b8');
+movingCar(-4.5,-7,-4.5,7,.2,'#d5a84e');
+movingCar(1.5,7,1.5,-7,.7,'#f1f0e7');
+pedestrians();
 
 function treeCluster(x,y,n,scale){
  for(let i=0;i<n;i++) tree(x+(i-n/2)*18,y+(i%2)*8,scale*(.9+(i%3)*.08));
@@ -445,18 +451,39 @@ let animTime=0;
 let last=performance.now();
 let lastSave=performance.now();
 let economyTime=performance.now();
-function loop(now){
-  const frameDt=Math.min((now-last)/1000,1);
-  last=now;
-  animTime+=frameDt;
+let simSpeed=1;
+let gamePaused=false;
 
-  // Экономика работает по реальному прошедшему времени, независимо от FPS анимации.
-  const economyDt=Math.min(Math.max((now-economyTime)/1000,0),1);
-  economyTime=now;
-  const t=totals();
-  if(economyDt>0 && t.income>0){
-    state.money+=t.income*economyDt;
-    state.totalEarned+=t.income*economyDt;
+function updateGameControls(){
+  $('pauseBtn').disabled=gamePaused;
+  $('startBtn').disabled=!gamePaused;
+  $('pauseBtn').classList.toggle('active',!gamePaused);
+  $('startBtn').classList.toggle('active',gamePaused);
+  $('speedBtn').classList.toggle('active',simSpeed===3);
+  $('speedBtn').textContent=simSpeed===3?'×3':'×1';
+}
+$('pauseBtn').onclick=()=>{gamePaused=true;updateGameControls();toast('⏸ Игра на паузе')};
+$('startBtn').onclick=()=>{gamePaused=false;economyTime=performance.now();last=performance.now();updateGameControls();toast('▶ Игра продолжается')};
+$('speedBtn').onclick=()=>{simSpeed=simSpeed===1?3:1;updateGameControls();toast(simSpeed===3?'⚡ Скорость ×3':'Скорость ×1')};
+updateGameControls();
+function loop(now){
+  const rawDt=Math.min((now-last)/1000,1);
+  last=now;
+
+  if(!gamePaused){
+    const simDt=rawDt*simSpeed;
+    animTime+=simDt;
+
+    const economyDt=Math.min(Math.max((now-economyTime)/1000,0),1)*simSpeed;
+    economyTime=now;
+    const t=totals();
+    if(economyDt>0 && t.income>0){
+      state.money+=t.income*economyDt;
+      state.totalEarned+=t.income*economyDt;
+    }
+  }else{
+    // Не накапливаем время во время паузы.
+    economyTime=now;
   }
 
   if(now-lastSave>2000){
