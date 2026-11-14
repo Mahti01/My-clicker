@@ -88,7 +88,7 @@ if(!Array.isArray(state.buildings)||state.buildings.length!==25)state.buildings=
 
 function save(){localStorage.setItem('my_clicker_save',JSON.stringify(state))}
 function fmt(n){return Math.floor(n).toLocaleString('ru-RU')}
-function totals(){let income=0,pop=0;state.buildings.forEach(b=>{if(!b)return;const t=TYPES[b.type],m=1+(b.level-1)*.35;income+=t.income*m;pop+=t.pop});return{income,pop}}
+function totals(){let income=0,pop=0;state.buildings.forEach(b=>{if(!b)return;const t=TYPES[b.type],m=1+(b.level-1)*.35;income+=t.income*m;pop+=t.pop});const cityBonus=1+Math.min(.25,pop/800);return{income:income*cityBonus,pop,baseIncome:income,cityBonus}}
 function resize(){W=innerWidth;H=innerHeight;D=Math.min(devicePixelRatio||1,2);canvas.width=W*D;canvas.height=H*D;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(D,0,0,D,0,0);draw()}
 addEventListener('resize',resize);
 
@@ -327,9 +327,9 @@ function showBuildingPanel(index){
   renderBuildBar();
 }
 function panel(name){activePanel=name;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.panel===name));const p=$('sidePanel');p.classList.add('show');
-if(name==='build')p.innerHTML='<h3>🏗️ Строительство</h3><p>Выберите здание снизу, затем нажмите на свободный участок.</p><p>Карту можно перемещать свайпом. Масштабирование: двумя пальцами.</p>';
-if(name==='city'){const t=totals();p.innerHTML='<h3>🏙️ Ваш город</h3><p>Уровень: <b>'+state.level+'</b></p><p>Жителей: <b>'+fmt(t.pop)+'</b></p><p>Построено: <b>'+state.buildings.filter(Boolean).length+'</b></p>'}
-if(name==='stats'){const t=totals();p.innerHTML='<h3>📊 Статистика</h3><p>Доход: <b>'+fmt(t.income)+' 💰/сек</b></p><p>Зданий: <b>'+state.buildings.filter(Boolean).length+'</b></p><p>Всего заработано: <b>'+fmt(state.totalEarned)+' 💰</b></p>'}
+if(name==='build')p.innerHTML='<h3>🏗️ Строительство</h3><p>Выберите здание снизу, затем нажмите на свободный участок.</p><p>Чем больше жителей, тем выше бонус к доходу города.</p><p>Карту можно перемещать свайпом. Масштабирование: двумя пальцами.</p>';
+if(name==='city'){const t=totals();const next=state.level*100-state.xp;p.innerHTML='<h3>🏙️ Ваш город</h3><p>Уровень: <b>'+state.level+'</b></p><p>Жителей: <b>'+fmt(t.pop)+'</b></p><p>Построено: <b>'+state.buildings.filter(Boolean).length+' / '+plots.length+'</b></p><p>Бонус города: <b>+'+Math.round((t.cityBonus-1)*100)+'%</b></p><p>До следующего уровня: <b>'+fmt(next)+' XP</b></p>'}
+if(name==='stats'){const t=totals();p.innerHTML='<h3>📊 Статистика</h3><p>Базовый доход: <b>'+fmt(t.baseIncome)+' 💰/сек</b></p><p>Бонус жителей: <b>+'+Math.round((t.cityBonus-1)*100)+'%</b></p><p>Итоговый доход: <b>'+fmt(t.income)+' 💰/сек</b></p><p>Жителей: <b>'+fmt(t.pop)+'</b></p><p>Зданий: <b>'+state.buildings.filter(Boolean).length+'</b></p><p>Всего заработано: <b>'+fmt(state.totalEarned)+' 💰</b></p>'}
 if(name==='settings')p.innerHTML='<h3>⚙️ Настройки</h3><p>Прогресс сохраняется автоматически на устройстве.</p><button id="resetSave" style="width:100%;border:0;border-radius:10px;padding:9px;background:#1b2821;color:#fff">Сбросить прогресс</button>';
 if(name==='settings')$('resetSave').onclick=()=>{if(confirm('Удалить сохранение и начать заново?')){localStorage.removeItem('my_clicker_save');location.reload()}};p.insertAdjacentHTML('afterbegin','<button class="panel-close" aria-label="Закрыть">×</button>');p.querySelector('.panel-close').onclick=()=>p.classList.remove('show')
 renderBuildBar()}
