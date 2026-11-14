@@ -20,6 +20,10 @@ export function initGameUI(manager){
     });
   });
   window.addEventListener("game:shown",()=>{panel.classList.add("hidden");status.textContent="Сохранено";});
+  window.addEventListener("economy:updated",e=>{
+    const el=document.getElementById("income-value");
+    if(el)el.textContent=e.detail.incomePerMinute.toLocaleString("ru-RU")+" ₽/мин";
+  });
   window.addEventListener("ui:economy-refresh",e=>{
     if(e.detail?.panel?.dataset.tab!=="economy")return;
     const economy=e.detail.economy;
