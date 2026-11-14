@@ -28,7 +28,7 @@ export class CameraController{
   distance(){const p=[...this.pointers.values()];return Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);}
   setScale(value){this.scale=Math.max(this.minScale,Math.min(this.maxScale,value));}
   zoomAt(factor,cx,cy){const old=this.scale;const next=Math.max(this.minScale,Math.min(this.maxScale,old*factor));if(next===old)return;const rect=this.el.getBoundingClientRect();const px=cx-rect.left,py=cy-rect.top;this.x=px-(px-this.x)*(next/old);this.y=py-(py-this.y)*(next/old);this.scale=next;this.clamp();this.apply();}
-  center(){const rect=this.el.getBoundingClientRect();this.x=rect.width/2;this.y=rect.height/2;this.apply();}
+  center(){const rect=this.el.getBoundingClientRect();this.x=(rect.width-1100*this.scale)/2;this.y=(rect.height-760*this.scale)/2;this.clamp();this.apply();}
   clamp(){const rect=this.el.getBoundingClientRect();const mapW=1100,mapH=760,margin=80;const sw=mapW*this.scale,sh=mapH*this.scale;const minX=rect.width-sw-margin,maxX=margin,minY=rect.height-sh-margin,maxY=margin;
     if(sw+margin*2<=rect.width)this.x=(rect.width-sw)/2;else this.x=Math.min(maxX,Math.max(minX,this.x));
     if(sh+margin*2<=rect.height)this.y=(rect.height-sh)/2;else this.y=Math.min(maxY,Math.max(minY,this.y));
