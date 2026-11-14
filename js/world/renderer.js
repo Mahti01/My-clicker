@@ -143,6 +143,17 @@ export class CityRenderer{
     this.drawTree(1.5,1.5);this.drawTree(18.5,1.5,1);this.drawTree(1.5,12.5);this.drawTree(18.5,12.5,1);
     this.drawDecor(6,2);this.drawDecor(14,2);this.drawDecor(6,11);this.drawDecor(14,11);
     for(const car of this.cars)this.drawCar(car);
+    this.drawPreview();
+  }
+
+  drawPreview(){
+    const p=this.preview;if(!p?.cell)return;
+    const c=this.ctx,item=p.item,valid=p.valid;
+    const x=p.cell.x,y=p.cell.y,w=item.w,h=item.h;
+    const a=this.iso(x,y,3),b=this.iso(x+w,y,3),d=this.iso(x,y+h,3),e=this.iso(x+w,y+h,3);
+    c.save();c.globalAlpha=.55;c.fillStyle=valid?"#d8b47a":"#d87878";
+    this.poly([{x:a.x,y:a.y},{x:b.x,y:b.y},{x:e.x,y:e.y},{x:d.x,y:d.y}],c.fillStyle);
+    c.strokeStyle=valid?"#f1d59d":"#f09a9a";c.lineWidth=3;c.setLineDash([8,6]);c.stroke();c.restore();
   }
 
   setCars(cars){this.cars=cars;this.render();}
