@@ -15,19 +15,30 @@ button{font:inherit}button:focus-visible{outline:2px solid var(--accent);outline
 .topbar{position:absolute;z-index:20;top:16px;left:16px;display:flex;align-items:center;gap:8px;pointer-events:none}
 .stat,.topbar__status{background:rgba(18,20,24,.86);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:9px 12px;font-size:13px;backdrop-filter:blur(10px)}
 .stat{display:flex;gap:7px;align-items:center;font-weight:700}.stat__icon{font-size:15px}.topbar__status{color:var(--muted);font-weight:500}
-.world{position:absolute;inset:0;overflow:hidden;background:linear-gradient(145deg,#667b61,#879b70 50%,#566d58);touch-action:none}
-.world__grid{position:absolute;inset:-30%;opacity:.25;background-image:linear-gradient(30deg,rgba(255,255,255,.18) 1px,transparent 1px),linear-gradient(150deg,rgba(255,255,255,.18) 1px,transparent 1px);background-size:64px 36px;transform:rotate(0deg)}
-.world__city{position:absolute;left:50%;top:50%;width:720px;height:520px;transform:translate(-50%,-50%) rotateX(52deg) rotateZ(0deg);transform-style:preserve-3d}
-.plaza{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotateX(-52deg);font-size:72px;filter:drop-shadow(0 12px 8px rgba(0,0,0,.25))}
-.building,.tree{position:absolute;transform:rotateX(-52deg);font-size:48px;filter:drop-shadow(0 12px 8px rgba(0,0,0,.25))}
-.building--a{left:16%;top:24%}.building--b{right:17%;top:24%}.building--c{left:16%;bottom:22%}.building--d{right:17%;bottom:22%}
-.tree{font-size:34px}.tree--1{left:4%;top:16%}.tree--2{right:5%;top:14%}.tree--3{left:4%;bottom:14%}.tree--4{right:4%;bottom:12%}
-.road{position:absolute;background:#3f4448;box-shadow:inset 0 0 0 2px rgba(255,255,255,.08);transform:translateZ(-2px)}
-.road--h{left:0;right:0;top:47%;height:54px}.road--v{top:0;bottom:0;left:47%;width:54px}
+.world{position:absolute;inset:0;overflow:hidden;background:#6f8667;touch-action:none;cursor:grab}
+.world.is-dragging{cursor:grabbing}
+.world__canvas{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0;will-change:transform}
+.world__terrain{position:absolute;left:-50%;top:-50%;width:200%;height:200%;background-color:#708767;background-image:linear-gradient(30deg,rgba(255,255,255,.12) 1px,transparent 1px),linear-gradient(150deg,rgba(255,255,255,.12) 1px,transparent 1px);background-size:72px 40px;transform:rotateX(54deg) rotateZ(0deg);opacity:.75}
+.world__map{position:absolute;left:50%;top:50%;width:1100px;height:760px;transform:translate(-50%,-50%) rotateX(54deg);transform-style:preserve-3d}
+.city-tile{position:absolute;width:170px;height:120px;background:linear-gradient(145deg,#8da47b,#738d68);border:2px solid rgba(255,255,255,.13);box-shadow:0 18px 25px rgba(0,0,0,.18);transform:translate(-50%,-50%);border-radius:8px}
+.road{position:absolute;background:#3f4448;border:1px solid rgba(255,255,255,.09);box-shadow:inset 0 0 0 2px rgba(0,0,0,.12);z-index:4}
+.road--h{left:0;right:0;top:50%;height:62px;transform:translateY(-50%)}
+.road--v{top:0;bottom:0;left:50%;width:62px;transform:translateX(-50%)}
+.road::after{content:"";position:absolute;left:0;right:0;top:50%;border-top:3px dashed rgba(240,210,135,.65)}
+.road--v::after{top:0;bottom:0;left:50%;right:auto;height:100%;border-top:0;border-left:3px dashed rgba(240,210,135,.65)}
+.plaza{position:absolute;left:50%;top:50%;width:210px;height:150px;transform:translate(-50%,-50%);z-index:6;background:radial-gradient(circle,#d8d0bf 0 38%,#b8ad99 39% 100%);border:4px solid #9e9584;border-radius:18px;display:grid;place-items:center;box-shadow:0 20px 20px rgba(0,0,0,.22)}
+.plaza::after{content:"⛲";font-size:62px;filter:drop-shadow(0 8px 5px rgba(0,0,0,.25))}
+.building{position:absolute;width:110px;height:90px;z-index:8;transform:translate(-50%,-50%);border-radius:8px 8px 4px 4px;box-shadow:0 16px 20px rgba(0,0,0,.28);display:grid;place-items:end center;padding-bottom:7px;font-size:38px}
+.building::before{content:"";position:absolute;top:-32px;left:-8px;border-left:63px solid transparent;border-right:63px solid transparent;border-bottom:38px solid #9b6e4c;filter:drop-shadow(0 3px 0 rgba(0,0,0,.15))}
+.building--a{left:27%;top:27%;background:#e6d5b7}.building--b{right:27%;top:27%;background:#d4c4b0}.building--c{left:27%;bottom:17%;background:#d7e0d2}.building--d{right:27%;bottom:17%;background:#b9c4d5}
+.tree{position:absolute;z-index:10;font-size:42px;filter:drop-shadow(0 12px 6px rgba(0,0,0,.3));transform:translate(-50%,-50%)}
+.tree--1{left:12%;top:18%}.tree--2{right:12%;top:17%}.tree--3{left:12%;bottom:10%}.tree--4{right:12%;bottom:9%}
+.decor{position:absolute;z-index:9;font-size:24px;transform:translate(-50%,-50%);filter:drop-shadow(0 6px 4px rgba(0,0,0,.25))}
+.decor--1{left:39%;top:22%}.decor--2{right:39%;top:22%}.decor--3{left:39%;bottom:21%}.decor--4{right:39%;bottom:21%}
 .tabs{position:absolute;z-index:30;right:16px;top:16px;width:180px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tab{min-height:58px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(18,20,24,.86);color:#d7d9dd;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;backdrop-filter:blur(10px)}
 .tab span{font-size:18px}.tab.is-active{border-color:rgba(216,180,122,.65);background:rgba(44,39,30,.92);color:#fff}
 .panel{position:absolute;z-index:40;right:16px;top:160px;width:min(360px,calc(100% - 32px));max-height:calc(100% - 190px);overflow:auto;background:rgba(20,22,27,.96);border:1px solid #343943;border-radius:20px;padding:18px;box-shadow:var(--shadow)}
 .panel h2{margin:0 0 8px;font-size:20px}.panel p{color:var(--muted);line-height:1.5}.panel__row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #2b2f36}.panel__row:last-child{border-bottom:0}
 .button--back{position:absolute;z-index:35;left:16px;bottom:16px;padding:10px 14px;background:rgba(18,20,24,.86)}
-@media(max-width:640px){.tabs{width:164px;right:10px;top:10px;gap:6px}.tab{min-height:54px}.topbar{left:10px;top:10px}.stat{padding:8px 9px}.topbar__status{display:none}.world__city{transform:translate(-50%,-50%) rotateX(52deg) scale(.72)}.panel{right:10px;top:142px}.menu-card{padding:30px 22px}.menu-card h1{font-size:28px}}
+@media(max-width:640px){.tabs{width:164px;right:10px;top:10px;gap:6px}.tab{min-height:54px}.topbar{left:10px;top:10px}.stat{padding:8px 9px}.world__map{width:900px;height:620px}.panel{right:10px;top:142px}.menu-card{padding:30px 22px}.menu-card h1{font-size:28px}}
