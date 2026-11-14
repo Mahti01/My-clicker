@@ -2,7 +2,7 @@ export class WorldController{
   constructor(element,state){
     this.el=element;this.state=state;this.cellSize=55;this.cols=20;this.rows=14;
     this.map=element.querySelector(".world__map");
-    this.layers={roads:element.querySelector("#roads-layer"),buildings:element.querySelector("#buildings-layer"),preview:element.querySelector("#build-preview"),message:element.querySelector("#world-message")};
+    this.layers={roads:element.querySelector("#roads-layer"),buildings:element.querySelector("#buildings-layer"),preview:element.querySelector("#build-preview"),vehicles:element.querySelector("#vehicles-layer"),message:element.querySelector("#world-message")};
     this.buildMode=false;this.previewItem=null;
     state.subscribe(()=>{this.renderRoads?.();this.renderBuildings?.();});
   }
