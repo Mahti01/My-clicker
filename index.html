@@ -83,7 +83,7 @@ office:{name:'Офис',icon:'🏢',cost:900,income:18,pop:8,xp:60,color:'#a9c8d
 park:{name:'Парк',icon:'🌳',cost:600,income:1,pop:20,xp:45,color:'#88b476',roof:'#648a5c'}
 };
 const plots=[[-6,-6],[-3,-6],[0,-6],[3,-6],[6,-6],[-6,-3],[-3,-3],[0,-3],[3,-3],[6,-3],[-6,0],[-3,0],[3,0],[6,0],[-6,3],[-3,3],[0,3],[3,3],[6,3],[-6,6],[-3,6],[0,6],[3,6],[6,6]];
-let state=JSON.parse(localStorage.getItem('my_clicker_save')||'null')||{money:1000,buildings:Array(14).fill(null),xp:0,level:1,totalEarned:0};
+let state=JSON.parse(localStorage.getItem('my_clicker_save')||'null')||{money:1000,buildings:Array(25).fill(null),xp:0,level:1,totalEarned:0};
 if(!Array.isArray(state.buildings)||state.buildings.length!==25)state.buildings=Array(25).fill(null);
 
 function save(){localStorage.setItem('my_clicker_save',JSON.stringify(state))}
@@ -303,6 +303,29 @@ ctx.restore();updateUI()}
 function updateUI(){const t=totals();$('money').textContent=fmt(state.money);$('pop').textContent=fmt(t.pop);$('rate').textContent='+'+fmt(t.income)+'/сек';$('income').textContent=fmt(t.income)+' монет / сек';$('level').textContent='Город '+state.level;$('xp').textContent=fmt(state.xp)+' / '+state.level*100+' XP';renderBuildBar()}
 function renderBuildBar(){const el=$('buildbar');el.innerHTML='';if(activePanel!=='build'){el.style.display='none';return}el.style.display='flex';Object.entries(TYPES).forEach(([id,t])=>{const b=document.createElement('button');b.className='build'+(id===selectedType?' active':'');b.disabled=state.money<t.cost;b.innerHTML='<i>'+t.icon+'</i><b>'+t.name+'</b><small>'+fmt(t.cost)+' 💰 · +'+t.income+'/сек</small>';b.onclick=()=>{selectedType=id;renderBuildBar()};el.appendChild(b)})}
 function toast(s){const e=$('toast');e.textContent=s;e.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.classList.remove('show'),1300)}
+function upgradeCost(b){return Math.floor(TYPES[b.type].cost*(1.65**b.level))}
+function showBuildingPanel(index){
+  const b=state.buildings[index],t=TYPES[b.type],p=$('sidePanel');
+  activePanel='build';
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.panel==='build'));
+  p.classList.add('show');
+  const cost=upgradeCost(b),nextMult=1+(b.level)*.35;
+  p.innerHTML='<button class="panel-close" aria-label="Закрыть">×</button>'+
+    '<h3>'+t.icon+' '+t.name+'</h3>'+
+    '<p>Уровень: <b>'+b.level+'</b> / 10</p>'+
+    '<p>Доход: <b>+'+fmt(t.income*(1+(b.level-1)*.35))+' 💰/сек</b></p>'+
+    '<p>Жители: <b>+'+fmt(t.pop)+' 👥</b></p>'+
+    (b.level<10?'<button id="upgradeBuilding" style="width:100%;border:0;border-radius:10px;padding:9px;background:#1b2821;color:#fff;margin-top:4px">⬆️ Улучшить · '+fmt(cost)+' 💰</button>':'<p><b>Максимальный уровень</b></p>');
+  p.querySelector('.panel-close').onclick=()=>p.classList.remove('show');
+  const btn=$('upgradeBuilding');
+  if(btn){btn.disabled=state.money<cost;btn.style.opacity=state.money<cost?'.5':'1';btn.onclick=()=>{
+    if(state.money<cost)return toast('Не хватает денег');
+    state.money-=cost;b.level++;state.xp+=Math.floor(t.xp*.5);
+    while(state.xp>=state.level*100){state.xp-=state.level*100;state.level++;toast('🎉 Новый уровень!')}
+    save();toast('⬆️ '+t.name+' улучшен до '+b.level+' уровня');showBuildingPanel(index);draw();
+  }}
+  renderBuildBar();
+}
 function panel(name){activePanel=name;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.panel===name));const p=$('sidePanel');p.classList.add('show');
 if(name==='build')p.innerHTML='<h3>🏗️ Строительство</h3><p>Выберите здание снизу, затем нажмите на свободный участок.</p><p>Карту можно перемещать свайпом. Масштабирование: двумя пальцами.</p>';
 if(name==='city'){const t=totals();p.innerHTML='<h3>🏙️ Ваш город</h3><p>Уровень: <b>'+state.level+'</b></p><p>Жителей: <b>'+fmt(t.pop)+'</b></p><p>Построено: <b>'+state.buildings.filter(Boolean).length+'</b></p>'}
@@ -315,7 +338,7 @@ document.querySelectorAll('.tab').forEach(b=>{
   b.addEventListener('pointerup',e=>{e.stopPropagation();panel(b.dataset.panel)});
   b.addEventListener('click',e=>{e.stopPropagation();panel(b.dataset.panel)});
 });
-function openGame(load){cam={x:0,y:0,z:1};if(!load){state={money:1000,buildings:Array(14).fill(null),xp:0,level:1,totalEarned:0};save()}$('menu').classList.add('hidden');$('game').classList.remove('hidden');resize();panel('build')}
+function openGame(load){cam={x:0,y:0,z:1};if(!load){state={money:1000,buildings:Array(25).fill(null),xp:0,level:1,totalEarned:0};save()}$('menu').classList.add('hidden');$('game').classList.remove('hidden');resize();panel('build')}
 $('newBtn').onclick=()=>openGame(false);$('continueBtn').onclick=()=>openGame(true);
 function showMenuModal(title,body){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('menuModal').classList.remove('hidden')}
 $('modalClose').onclick=()=>$('menuModal').classList.add('hidden');
@@ -349,7 +372,19 @@ function finishPointer(e){
   if(!drag.moved){
     let best=-1,bd=999;
     plots.forEach((v,i)=>{const q=iso(v[0],v[1]),s=Math.min(W/12,H/17),w=s*1.55,h=s*.73,d=Math.abs((e.clientX-q.x)/w)+Math.abs((e.clientY-q.y)/h);if(d<1&&d<bd){bd=d;best=i}});
-    if(best>=0){const b=state.buildings[best];if(b)toast(TYPES[b.type].icon+' '+TYPES[b.type].name+' · уровень '+b.level);else if(activePanel==='build'){const t=TYPES[selectedType];if(state.money<t.cost)toast('Не хватает денег');else{state.money-=t.cost;state.buildings[best]={type:selectedType,level:1};state.xp+=t.xp;while(state.xp>=state.level*100){state.xp-=state.level*100;state.level++;toast('🎉 Новый уровень!')}save();toast(t.icon+' '+t.name+' построен');draw()}}}
+    if(best>=0){
+      const b=state.buildings[best];
+      if(b)showBuildingPanel(best);
+      else if(activePanel==='build'){
+        const t=TYPES[selectedType];
+        if(state.money<t.cost)toast('Не хватает денег');
+        else{
+          state.money-=t.cost;state.buildings[best]={type:selectedType,level:1};state.xp+=t.xp;
+          while(state.xp>=state.level*100){state.xp-=state.level*100;state.level++;toast('🎉 Новый уровень!')}
+          save();toast(t.icon+' '+t.name+' построен');draw()
+        }
+      }
+    }
   }
   drag=null;
 }
