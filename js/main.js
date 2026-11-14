@@ -20,6 +20,7 @@ function initWorld(){
   const economy=new Economy(manager.state);
   economy.startIncome();
   window.cityEconomy=economy;
+  window.dispatchEvent(new CustomEvent("economy:updated",{detail:{incomePerMinute:economy.getIncomePerMinute()}}));
   buildings=new BuildingSystem(manager.state,economy,world);
   roads=new RoadSystem(manager.state,economy,world);
   vehicles=new VehicleSystem(manager.state,world,renderer);
@@ -29,6 +30,9 @@ function initWorld(){
 window.addEventListener("game:shown",initWorld);
 
 window.addEventListener("ui:tab",e=>{
+  if(e.detail.tab==="build" && buildings && roads){
+    // Build panel is rendered below; keep the tab itself independent from canvas controls.
+  }
   if(e.detail.tab==="economy"&&window.cityEconomy){
     e.detail.panel.dataset.tab="economy";
     window.dispatchEvent(new CustomEvent("ui:economy-refresh",{detail:{panel:e.detail.panel,economy:window.cityEconomy}}));
