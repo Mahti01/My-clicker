@@ -64,73 +64,60 @@ const types=[
 let state=JSON.parse(localStorage.getItem("city_builder")||"null")||{money:1000,pop:0,xp:0,level:1,buildings:[],totalEarned:0,quests:{home:false,people:false,money:false}};
 state.totalEarned=state.totalEarned||0; state.quests=state.quests||{home:false,people:false,money:false};
 let selectedBuilding=null;
-let cam={x:W/2,y:H/2+30,z:1},drag=null,selected=null;
-function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(dpr,0,0,dpr,0,0);draw()}
-function iso(x,y){return{x:cam.x+(x-y)*45*cam.z,y:cam.y+(x+y)*22.5*cam.z}}
-function grid(px,py){let X=(px-cam.x)/(45*cam.z),Y=(py-cam.y)/(22.5*cam.z);return{x:Math.round((X+Y)/2),y:Math.round((Y-X)/2)}}
+const TILE_W=32,TILE_H=16;
+let cam={x:W/2,y:H/2+30,z:.78},drag=null,selected=null;
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(dpr,0,0,dpr,0,0);if(!cam.x)cam.x=W/2;if(!cam.y)cam.y=H/2+30;draw()}
+function iso(x,y){return{x:cam.x+(x-y)*TILE_W*cam.z,y:cam.y+(x+y)*TILE_H*cam.z}}
+function grid(px,py){let X=(px-cam.x)/(TILE_W*cam.z),Y=(py-cam.y)/(TILE_H*cam.z);return{x:Math.round((X+Y)/2),y:Math.round((Y-X)/2)}}
 function diamond(x,y,fill,stroke){let p=iso(x,y),tw=45*cam.z,th=22.5*cam.z;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+tw,p.y+th);ctx.lineTo(p.x,p.y+th*2);ctx.lineTo(p.x-tw,p.y+th);ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.stroke()}
 function drawGround(){
-for(let x=-14;x<=14;x++)for(let y=-14;y<=14;y++){
-let water=(x<=-10)||(x>=11)||(y<=-11)||(y>=11);
+for(let x=-16;x<=16;x++)for(let y=-16;y<=16;y++){
+let water=(x<=-14)||(x>=15)||(y<=-14)||(y>=15);
 let plaza=Math.abs(x)<=1&&Math.abs(y)<=1;
-let park=!water&&!plaza&&((x+y)%9===0||((x*3+y*2)%13===0));
-let fill=water?(((x+y)&1)?"#7fb5c3":"#8cc1cd"):(plaza?"#d7d0bd":(park?"#a7c88f":(((x+y)&1)?"#bfd7ae":"#b8d0a7")));
-diamond(x,y,fill,water?"#ffffff18":"#53694f28");
-if(water){
-let p=iso(x,y),s=cam.z;
-ctx.strokeStyle="#d9f1f36a";ctx.lineWidth=1.5*s;
-ctx.beginPath();ctx.moveTo(p.x-15*s,p.y+7*s);ctx.lineTo(p.x+15*s,p.y-7*s);ctx.stroke();
+let green=((x*7+y*11)%13===0);
+let fill=water?(((x+y)&1)?"#82b9c7":"#8fc2cd"):(plaza?"#d9d2c0":(green?"#a9c992":(((x+y)&1)?"#c1d7ae":"#b9d1a8")));
+diamond(x,y,fill,water?"#ffffff20":"#50674d25");
 }
 }
-}
-function roadTile(x,y){
-let p=iso(x,y),s=cam.z,tw=45*s,th=22.5*s;
-ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+tw,p.y+th);ctx.lineTo(p.x,p.y+th*2);ctx.lineTo(p.x-tw,p.y+th);ctx.closePath();
-ctx.fillStyle="#bdb8a9";ctx.fill();
-ctx.strokeStyle="#918d80";ctx.lineWidth=1*s;ctx.stroke();
-ctx.strokeStyle="#eee9d8b8";ctx.lineWidth=2*s;
-ctx.beginPath();ctx.moveTo(p.x-23*s,p.y+11.5*s);ctx.lineTo(p.x+23*s,p.y-11.5*s);ctx.stroke();
-}
-function sidewalkTile(x,y){
-let p=iso(x,y),s=cam.z,tw=45*s,th=22.5*s;
-ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+tw,p.y+th);ctx.lineTo(p.x,p.y+th*2);ctx.lineTo(p.x-tw,p.y+th);ctx.closePath();
-ctx.strokeStyle="#ded9ca88";ctx.lineWidth=5*s;ctx.stroke();
+function drawRoadLine(a,b,c,d){
+let p1=iso(a,b),p2=iso(c,d),s=cam.z;
+ctx.save();
+ctx.strokeStyle="#b9b3a5";
+ctx.lineWidth=8*s;
+ctx.lineCap="round";
+ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.stroke();
+ctx.strokeStyle="#eee8d7";
+ctx.lineWidth=2*s;
+ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.stroke();
+ctx.restore();
 }
 function drawRoads(){
-for(let x=-9;x<=9;x++)for(let y=-9;y<=9;y++){
-if(x%3===0||y%3===0)roadTile(x,y);
-}
-for(let x=-9;x<=9;x++)for(let y=-9;y<=9;y++){
-if((x%3===0||y%3===0)&&!(x%3===0&&y%3===0))sidewalkTile(x,y);
-}
+for(let x=-12;x<=12;x+=3) drawRoadLine(x,-12,x,12);
+for(let y=-12;y<=12;y+=3) drawRoadLine(-12,y,12,y);
 }
 function drawMapDetails(){
 let s=cam.z;
-for(let x=-9;x<=9;x++)for(let y=-9;y<=9;y++){
-if((x%3===0||y%3===0))continue;
-if((x%4===1&&y%4===1)||(x%5===-1&&y%3===0)){
+for(let x=-12;x<=12;x++)for(let y=-12;y<=12;y++){
+if(x%3===0||y%3===0) continue;
+if((x*5+y*3)%17===0){
 let p=iso(x,y);
 ctx.save();ctx.translate(p.x,p.y);
-ctx.fillStyle="#725d46";ctx.fillRect(-2*s,-13*s,4*s,13*s);
-ctx.fillStyle="#4f7f54";ctx.beginPath();ctx.arc(0,-19*s,10*s,0,Math.PI*2);ctx.arc(-6*s,-14*s,7*s,0,Math.PI*2);ctx.arc(6*s,-14*s,7*s,0,Math.PI*2);ctx.fill();
+ctx.fillStyle="#735d47";ctx.fillRect(-1.5*s,-10*s,3*s,10*s);
+ctx.fillStyle="#4f8055";
+ctx.beginPath();ctx.arc(0,-15*s,7*s,0,Math.PI*2);ctx.arc(-4*s,-11*s,5*s,0,Math.PI*2);ctx.arc(4*s,-11*s,5*s,0,Math.PI*2);ctx.fill();
 ctx.restore();
 }
 }
 let plaza=iso(0,0);
 ctx.save();ctx.translate(plaza.x,plaza.y);
-ctx.fillStyle="#e1dbca";ctx.beginPath();ctx.ellipse(0,0,31*s,15.5*s,0,0,Math.PI*2);ctx.fill();
-ctx.strokeStyle="#b3ac9b";ctx.lineWidth=1.5*s;ctx.stroke();
-ctx.fillStyle="#a18e6f";ctx.beginPath();ctx.arc(0,-5*s,5*s,0,Math.PI*2);ctx.fill();
-ctx.restore();
-
-let fountain=iso(0,0);
-ctx.save();ctx.translate(fountain.x,fountain.y);
-ctx.fillStyle="#8db8c0";ctx.beginPath();ctx.ellipse(0,-5*s,11*s,5*s,0,0,Math.PI*2);ctx.fill();
-ctx.fillStyle="#c9d9d4";ctx.fillRect(-2*s,-14*s,4*s,9*s);
+ctx.fillStyle="#e2dccb";ctx.beginPath();ctx.ellipse(0,0,23*s,11*s,0,0,Math.PI*2);ctx.fill();
+ctx.strokeStyle="#b5ae9d";ctx.lineWidth=1*s;ctx.stroke();
+ctx.fillStyle="#91b7bd";ctx.beginPath();ctx.ellipse(0,-3*s,7*s,3.5*s,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle="#c7d5d0";ctx.fillRect(-1.5*s,-11*s,3*s,8*s);
 ctx.restore();
 }
 function drawBuilding(b){
-let p=iso(b.x,b.y),t=types.find(x=>x.id===b.type),s=cam.z,w=70*s,d=38*s,h=t.h*s;
+let p=iso(b.x,b.y),t=types.find(x=>x.id===b.type),s=cam.z,w=50*s,d=28*s,h=t.h*s;
 if(selectedBuilding===b){
 ctx.save();ctx.translate(p.x,p.y);
 ctx.strokeStyle="#f0c86a";ctx.lineWidth=4*s;
