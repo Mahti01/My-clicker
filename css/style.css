@@ -76,3 +76,8 @@ button{font:inherit}button:focus-visible{outline:2px solid var(--accent);outline
 /* Canvas world replaces the old DOM map layers. */
 .world__terrain,.world__map,.world-layer{display:none!important}
 @media(max-width:640px){.world__canvas{width:1100px;height:760px}}
+
+/* 3D world */
+.world__canvas{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important;touch-action:none;cursor:grab}
+.world__canvas:active{cursor:grabbing}
+.world{background:#71896a!important}
