@@ -69,7 +69,7 @@ let cam={x:W/2,y:H/2+30,z:.78},drag=null,selected=null;
 function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(dpr,0,0,dpr,0,0);if(!cam.x)cam.x=W/2;if(!cam.y)cam.y=H/2+30;draw()}
 function iso(x,y){return{x:cam.x+(x-y)*TILE_W*cam.z,y:cam.y+(x+y)*TILE_H*cam.z}}
 function grid(px,py){let X=(px-cam.x)/(TILE_W*cam.z),Y=(py-cam.y)/(TILE_H*cam.z);return{x:Math.round((X+Y)/2),y:Math.round((Y-X)/2)}}
-function diamond(x,y,fill,stroke){let p=iso(x,y),tw=45*cam.z,th=22.5*cam.z;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+tw,p.y+th);ctx.lineTo(p.x,p.y+th*2);ctx.lineTo(p.x-tw,p.y+th);ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.stroke()}
+function diamond(x,y,fill,stroke){let p=iso(x,y),tw=TILE_W*cam.z,th=TILE_H*cam.z;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+tw,p.y+th);ctx.lineTo(p.x,p.y+th*2);ctx.lineTo(p.x-tw,p.y+th);ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.stroke()}
 function drawGround(){
 for(let x=-16;x<=16;x++)for(let y=-16;y<=16;y++){
 let water=(x<=-14)||(x>=15)||(y<=-14)||(y>=15);
