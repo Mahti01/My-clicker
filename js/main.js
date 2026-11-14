@@ -31,8 +31,8 @@ window.addEventListener("ui:tab",e=>{
   panel.innerHTML=`<div class="panel__head"><div><h2>Строительство</h2><p>Выбери объект и нажми на свободную клетку карты.</p></div><button class="button button--small" data-cancel-build>Отмена</button></div>
   <div class="build-card-list">${cards}</div>
   <button class="build-card build-card--road" data-build-road><span class="build-card__icon">🛣️</span><span><strong>Дорога</strong><small>1 клетка • 120 ₽</small></span><b>120 ₽</b></button>`;
-  panel.querySelectorAll("[data-build]").forEach(btn=>btn.addEventListener("click",()=>buildings.select(btn.dataset.build)));
-  panel.querySelector("[data-build-road]").addEventListener("click",()=>roads.select());
+  panel.querySelectorAll("[data-build]").forEach(btn=>btn.addEventListener("click",()=>{roads.cancel();buildings.select(btn.dataset.build);}));
+  panel.querySelector("[data-build-road]").addEventListener("click",()=>{buildings.cancel();roads.select();});
   panel.querySelector("[data-cancel-build]").addEventListener("click",()=>{buildings.cancel();roads.cancel();});
 });
 
