@@ -7,22 +7,24 @@ import {BuildingSystem} from "./world/buildings.js";
 import {RoadSystem} from "./world/roads.js";
 import {VehicleSystem} from "./world/vehicles.js";
 import {Economy} from "./core/economy.js";
+import {CityRenderer} from "./world/renderer.js";
 
 const manager=new GameManager();window.gameManager=manager;
 initMenu(manager);initGameUI(manager);
 
-let camera=null,world=null,buildings=null,roads=null,vehicles=null;
+let camera=null,world=null,buildings=null,roads=null,vehicles=null,renderer=null;
 function initWorld(){
   if(world)return;
   const worldEl=document.getElementById("world");
   camera=new CameraController(worldEl);
-  world=new WorldController(worldEl,manager.state);
+  renderer=new CityRenderer(document.getElementById("world-canvas"),manager.state);
+  world=new WorldController(worldEl,manager.state,renderer);
   const economy=new Economy(manager.state);
   buildings=new BuildingSystem(manager.state,economy,world);
   roads=new RoadSystem(manager.state,economy,world);
-  vehicles=new VehicleSystem(manager.state,world);
+  vehicles=new VehicleSystem(manager.state,world,renderer);
   world.setSystems(roads,buildings);
-  window.cityWorld={world,camera,buildings,roads,vehicles};
+  window.cityWorld={world,camera,buildings,roads,vehicles,renderer};
 }
 window.addEventListener("game:shown",initWorld);
 
