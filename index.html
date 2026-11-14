@@ -8,7 +8,20 @@
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.180.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.180.0/examples/jsm/"}}</script>
 </head>
 <body>
-<div id="app"><div id="scene"></div>
+<div id="app">
+<div id="mainMenu">
+  <div class="menu-hit menu-continue" data-menu="continue" aria-label="Продолжить игру"></div>
+  <div class="menu-hit menu-new" data-menu="new" aria-label="Начать игру"></div>
+  <div class="menu-hit menu-rating" data-menu="rating" aria-label="Рейтинг"></div>
+  <div class="menu-hit menu-settings" data-menu="settings" aria-label="Настройки"></div>
+  <div id="menuDialog" class="menu-dialog hidden">
+    <div class="menu-dialog-card">
+      <button id="menuDialogClose" class="menu-dialog-close">×</button>
+      <div id="menuDialogContent"></div>
+    </div>
+  </div>
+</div>
+<div id="scene"></div>
 <section class="hud hud-left">
 <div class="card date-card"><div class="date-top">ДЕНЬ <span id="day">1</span></div><div class="time" id="time">09:20</div><div class="muted">☀️ Лето · Понедельник</div><div class="location">🏪 Ваш магазин</div></div>
 <div class="card money-card">💵 <strong id="money">20 000 ₽</strong></div>
