@@ -14,6 +14,17 @@ export class Economy{
 
   addExperience(amount){return this.state.addExperience(amount);}
 
+  getResource(key){return this.state.get().resources?.[key]||0;}
+
+  addResource(key,amount){
+    if(!key||!Number.isFinite(amount))return false;
+    const current=this.state.get();
+    const resources={...(current.resources||{})};
+    resources[key]=Math.max(0,(resources[key]||0)+amount);
+    this.state.set({resources});
+    return true;
+  }
+
   getIncomePerMinute(){
     const buildings=this.state.get().world?.buildings||[];
     const rates={house:30,shop:100,office:180,villa:60};
