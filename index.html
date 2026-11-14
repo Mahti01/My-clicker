@@ -22,7 +22,7 @@ button{font:inherit;cursor:pointer}body{overscroll-behavior:none}
 .stats{display:flex;gap:7px}.card,.level,.side-panel,.buildbar,.back{background:rgba(250,249,242,.94);border:1px solid rgba(255,255,255,.65);box-shadow:0 9px 28px rgba(35,50,38,.15);backdrop-filter:blur(10px)}
 .card{padding:8px 11px;border-radius:14px;min-width:88px}.card small{display:block;color:#69736e;font-size:9px}.card b{display:block;font-size:15px;margin-top:2px}.level{border-radius:14px;padding:9px 12px;text-align:right}.level b{font-size:14px}.level small{display:block;color:#69736e;font-size:9px;margin-top:2px}
 .tabs{position:absolute;z-index:100;right:14px;top:104px;display:flex;flex-direction:column;gap:7px;pointer-events:auto;touch-action:manipulation;width:112px}.tab{position:relative;z-index:101;box-sizing:border-box;border:0;border-radius:12px;background:rgba(250,249,242,.96);padding:8px 8px;text-align:left;font-size:9.5px;line-height:1;box-shadow:0 7px 22px rgba(35,50,38,.12);width:112px;min-height:44px;display:flex;align-items:center;white-space:nowrap;overflow:hidden}.tab span{display:inline-flex;flex:0 0 20px;width:20px;font-size:15px;margin-right:3px;align-items:center;justify-content:center}.tab.active{background:#1b2821;color:#fff}
-.side-panel{position:absolute;z-index:90;left:14px;right:auto;top:104px;width:min(185px,calc(100vw - 150px));box-sizing:border-box;border-radius:14px;padding:11px 12px;background:rgba(250,249,242,.97);box-shadow:0 10px 28px rgba(35,50,38,.16);display:none;font-size:10px;line-height:1.25}.side-panel.show{display:block}.panel-close{position:absolute;right:8px;top:7px;width:24px;height:24px;border:0;border-radius:8px;background:#edf0e8;color:#5f6963;font-size:17px;line-height:24px;padding:0}.panel-close{pointer-events:auto;touch-action:manipulation;z-index:5;cursor:pointer}.panel-close:active{transform:scale(.94)}.side-panel h3{margin:0 26px 7px 0;font-size:13px;line-height:1.15}.side-panel p{margin:5px 0;color:#69736e;line-height:1.3}
+.side-panel{position:absolute;z-index:1000;left:14px;right:auto;top:104px;width:min(185px,calc(100vw - 150px));box-sizing:border-box;border-radius:14px;padding:11px 12px;background:rgba(250,249,242,.97);box-shadow:0 10px 28px rgba(35,50,38,.16);display:none;font-size:10px;line-height:1.25;pointer-events:auto;touch-action:auto}.side-panel.show{display:block}.panel-close{position:absolute;right:8px;top:7px;width:24px;height:24px;border:0;border-radius:8px;background:#edf0e8;color:#5f6963;font-size:17px;line-height:24px;padding:0}.panel-close{pointer-events:auto;touch-action:manipulation;z-index:5;cursor:pointer}.panel-close:active{transform:scale(.94)}.side-panel h3{margin:0 26px 7px 0;font-size:13px;line-height:1.15}.side-panel p{margin:5px 0;color:#69736e;line-height:1.3}
 .bottom{position:absolute;z-index:20;left:14px;right:14px;bottom:max(14px,env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:9px;pointer-events:none}.income{background:rgba(250,249,242,.94);border-radius:14px;padding:9px 12px;min-width:140px;box-shadow:0 8px 24px rgba(35,50,38,.14)}.income small{display:block;color:#69736e;font-size:9px}.income b{font-size:14px}.buildbar{display:flex;gap:6px;padding:7px;border-radius:15px;overflow:auto;max-width:calc(100% - 155px);pointer-events:auto}.build{border:0;background:#f0f1e9;border-radius:11px;padding:7px 9px;min-width:90px;text-align:left}.build.active{background:#1b2821;color:#fff}.build:disabled{opacity:.4}.build i{font-style:normal;font-size:18px}.build b{display:block;font-size:10px}.build small{font-size:8px;color:#758078}.build.active small{color:#d7ddd8}
 .back{position:absolute;z-index:30;left:14px;top:calc(max(14px,env(safe-area-inset-top)) + 68px);border:0;border-radius:12px;padding:9px 12px;pointer-events:auto;font-size:11px}
 .toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);background:#1b2821;color:#fff;padding:12px 17px;border-radius:14px;opacity:0;pointer-events:none;transition:.18s;font-size:12px;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
@@ -304,19 +304,20 @@ function updateUI(){const t=totals();$('menuMoney').textContent=fmt(state.money)
 function renderBuildBar(){const el=$('buildbar');el.innerHTML='';if(activePanel!=='build'){el.style.display='none';return}el.style.display='flex';Object.entries(TYPES).forEach(([id,t])=>{const b=document.createElement('button');b.className='build'+(id===selectedType?' active':'');b.disabled=state.money<t.cost;b.innerHTML='<i>'+t.icon+'</i><b>'+t.name+'</b><small>'+fmt(t.cost)+' 💰 · +'+t.income+'/сек</small>';b.onclick=()=>{selectedType=id;renderBuildBar()};el.appendChild(b)})}
 function toast(s){const e=$('toast');e.textContent=s;e.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.classList.remove('show'),1300)}
 function upgradeCost(b){return Math.floor(TYPES[b.type].cost*(1.65**b.level))}
+function closeSidePanel(e){if(e){e.preventDefault();e.stopPropagation()}const p=$('sidePanel');p.classList.remove('show');p.style.display='none';}
 function showBuildingPanel(index){
   const b=state.buildings[index],t=TYPES[b.type],p=$('sidePanel');
   activePanel='build';
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.panel==='build'));
-  p.classList.add('show');
+  p.classList.add('show');p.style.display='block';
   const cost=upgradeCost(b),nextMult=1+(b.level)*.35;
-  p.innerHTML='<button class="panel-close" aria-label="Закрыть">×</button>'+
+  p.innerHTML='<button type="button" class="panel-close" aria-label="Закрыть" onclick="closeSidePanel(event)" ontouchend="closeSidePanel(event)">×</button>'+
     '<h3>'+t.icon+' '+t.name+'</h3>'+
     '<p>Уровень: <b>'+b.level+'</b> / 10</p>'+
     '<p>Доход: <b>+'+fmt(t.income*(1+(b.level-1)*.35))+' 💰/сек</b></p>'+
     '<p>Жители: <b>+'+fmt(t.pop)+' 👥</b></p>'+
     (b.level<10?'<button id="upgradeBuilding" style="width:100%;border:0;border-radius:10px;padding:9px;background:#1b2821;color:#fff;margin-top:4px">⬆️ Улучшить · '+fmt(cost)+' 💰</button>':'<p><b>Максимальный уровень</b></p>');
-  p.querySelector('.panel-close').onclick=()=>p.classList.remove('show');
+  p.querySelector('.panel-close').onclick=closeSidePanel;
   const btn=$('upgradeBuilding');
   if(btn){btn.disabled=state.money<cost;btn.style.opacity=state.money<cost?'.5':'1';btn.onclick=()=>{
     if(state.money<cost)return toast('Не хватает денег');
