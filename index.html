@@ -243,6 +243,34 @@ function crosswalk(x,y,horizontal=true){
 }
 grid.slice(1,-1).forEach(v=>{crosswalk(v,-1.5);crosswalk(v,1.5);crosswalk(-1.5,v,false);crosswalk(1.5,v,false)});
 
+function movingCar(a,b,c,d,phase,color){
+ const speed=.34, u=((animTime*speed+phase)%1);
+ const x=a+(c-a)*u, y=b+(d-b)*u;
+ const p=iso(x,y), q=iso(x+.12,y+.12);
+ const ang=Math.atan2(q.y-p.y,q.x-p.x);
+ ctx.save();ctx.translate(p.x,p.y+4);ctx.rotate(ang);
+ ctx.fillStyle='rgba(30,35,33,.22)';ctx.beginPath();ctx.ellipse(0,5,10,3,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle=color;ctx.fillRect(-8,-4,16,7);
+ ctx.fillStyle='#b8d5d8';ctx.fillRect(-4,-6,8,3);
+ ctx.fillStyle='#2e3432';ctx.fillRect(-6,3,3,2);ctx.fillRect(3,3,3,2);
+ ctx.restore();
+}
+function pedestrians(){
+ const people=[[-6,-2,.05],[-2,2,.35],[3,-1,.62],[6,2,.82]];
+ people.forEach(([a,b,phase])=>{
+   const u=(animTime*.12+phase)%1;
+   const x=a+Math.sin(u*Math.PI*2)*.12,y=b+u*.55;
+   const p=iso(x,y);
+   ctx.fillStyle='#d9a078';ctx.beginPath();ctx.arc(p.x,p.y-7,2.2,0,Math.PI*2);ctx.fill();
+   ctx.strokeStyle='#3e4c45';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(p.x,p.y-4);ctx.lineTo(p.x,p.y+2);ctx.stroke();
+ });
+}
+movingCar(-7,-4.5,7,-4.5,0,'#c9574d');
+movingCar(7,1.5,-7,1.5,.45,'#4d78b8');
+movingCar(-4.5,-7,-4.5,7,.2,'#d5a84e');
+movingCar(1.5,7,1.5,-7,.7,'#f1f0e7');
+pedestrians();
+
 function plotCard(v,i){
  const q=iso(v[0],v[1]),w=s*2.05,h=s*.9;
  poly([{x:q.x,y:q.y-h},{x:q.x+w,y:q.y},{x:q.x,y:q.y+h},{x:q.x-w,y:q.y}], '#a8cc8b','#789766');
@@ -357,8 +385,8 @@ canvas.addEventListener('pointerup',finishPointer);
 canvas.addEventListener('pointercancel',finishPointer);
 canvas.addEventListener('wheel',e=>{e.preventDefault();cam.z=Math.max(.72,Math.min(1.55,cam.z*(e.deltaY<0?1.08:.92)));clampCam();draw()},{passive:false});
 
-let last=performance.now(),lastSave=performance.now();
-function loop(now){const dt=Math.min((now-last)/1000,1);last=now;const t=totals();state.money+=t.income*dt;state.totalEarned+=t.income*dt;if(now-lastSave>2000){save();lastSave=now}if(!$('game').classList.contains('hidden'))updateUI();requestAnimationFrame(loop)}
+let animTime=0;let last=performance.now(),lastSave=performance.now();
+function loop(now){const dt=Math.min((now-last)/1000,1);last=now;animTime+=dt;const t=totals();state.money+=t.income*dt;state.totalEarned+=t.income*dt;if(now-lastSave>2000){save();lastSave=now}if(!$('game').classList.contains('hidden')){updateUI();draw()}requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
 if(localStorage.getItem('my_clicker_save'))$('continueBtn').classList.remove('disabled');else $('continueBtn').classList.add('disabled');
 </script>
