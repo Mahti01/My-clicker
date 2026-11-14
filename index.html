@@ -124,7 +124,7 @@ function building(x,y,type,level){
    {wall:'#c8b19d',roof:'#4d5659',trim:'#f4e6d5'}
   ],v=variants[(level-1)%variants.length];
   // side wall
-  poly([{x:right,y:top},{x:right,y:bottom},{x:right+depth,bottom:bottom+depth},{x:right+depth,y:top+depth}], '#a88d7d');
+  poly([{x:right,y:top},{x:right,y:bottom},{x:right+depth,y:bottom+depth},{x:right+depth,y:top+depth}], '#a88d7d');
   poly([{x:left,y:top},{x:right,y:top},{x:right+depth,y:top+depth},{x:left+depth,y:top+depth}], '#efe2d2');
   ctx.fillStyle=v.wall;ctx.fillRect(left,top,w,h);
   poly([{x:left-2,y:top},{x,y:top-depth*.95},{x:right+2,y:top}],v.roof,'#403d3a');
