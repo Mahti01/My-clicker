@@ -25,11 +25,16 @@ export class RoadSystem{
   }
   render(){
     const layer=this.world.layers.roads;layer.innerHTML="";
-    for(const r of this.state.get().world?.roads||[]){
+    const roads=this.state.get().world?.roads||[];
+    const has=(x,y)=>roads.some(r=>r.x===x&&r.y===y);
+    for(const r of roads){
       const el=document.createElement("div");
+      const n=has(r.x,r.y-1),e=has(r.x+1,r.y),s=has(r.x,r.y+1),w=has(r.x-1,r.y);
       el.className="world-road-cell";
+      el.dataset.connections=[n?"n":"",e?"e":"",s?"s":"",w?"w":""].filter(Boolean).join(" ");
       el.style.left=(r.x*this.world.cellSize)+"px";
       el.style.top=(r.y*this.world.cellSize)+"px";
+      el.innerHTML='<span class="road-surface"></span><span class="road-mark road-mark--n"></span><span class="road-mark road-mark--e"></span><span class="road-mark road-mark--s"></span><span class="road-mark road-mark--w"></span>';
       layer.appendChild(el);
     }
   }
