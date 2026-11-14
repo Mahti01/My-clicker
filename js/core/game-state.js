@@ -2,7 +2,7 @@ const STORAGE_KEY="city-economy-save-v1";
 
 const DEFAULT_STATE=Object.freeze({
   version:1,money:10000,level:1,experience:0,buildings:0,
-  world:{buildings:[],roads:[]},
+  world:{buildings:[],roads:[],vehicles:[]},
   settings:{sound:true,music:true,graphics:"high"},
   resources:{wood:0,stone:0,food:0}
 });
