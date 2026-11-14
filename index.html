@@ -92,7 +92,7 @@ function totals(){let income=0,pop=0;state.buildings.forEach(b=>{if(!b)return;co
 function resize(){W=innerWidth;H=innerHeight;D=Math.min(devicePixelRatio||1,2);canvas.width=W*D;canvas.height=H*D;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(D,0,0,D,0,0);draw()}
 addEventListener('resize',resize);
 
-function clampCam(){const zx=Math.max(0,(cam.z-1)*W*.5),zy=Math.max(0,(cam.z-1)*H*.5);cam.x=Math.max(-zx,Math.min(zx,cam.x));cam.y=Math.max(-zy,Math.min(zy,cam.y))}
+function clampCam(){const zx=W*.28*cam.z,zy=H*.22*cam.z;cam.x=Math.max(-zx,Math.min(zx,cam.x));cam.y=Math.max(-zy,Math.min(zy,cam.y))}
 function iso(a,b){const s=Math.min(W/12,H/17);return{x:W/2+(a-b)*s*.72,y:H/2+(a+b)*s*.34}}
 function poly(points,fill,stroke){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke()}}
 function tree(x,y,k=.6){ctx.fillStyle='#6b4b38';ctx.fillRect(x-2,y+7,4,19*k);ctx.fillStyle='#4f8154';ctx.beginPath();ctx.arc(x,y,14*k,0,Math.PI*2);ctx.fill();ctx.fillStyle='#76a45f';ctx.beginPath();ctx.arc(x-7*k,y-4,9*k,0,Math.PI*2);ctx.arc(x+7*k,y-3,10*k,0,Math.PI*2);ctx.fill()}
