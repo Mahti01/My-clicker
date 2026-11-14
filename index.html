@@ -10,13 +10,11 @@
 <body>
 <div id="app">
 <div id="mainMenu">
-  <img class="main-menu-image" src="./main-menu.webp" alt="Мой магазин">
-  <div class="main-menu-buttons">
-    <button class="main-menu-button main-menu-button-primary menu-continue" data-menu="continue"><span class="button-icon">▶</span><span>Продолжить игру</span></button>
-    <button class="main-menu-button menu-new" data-menu="new"><span class="button-icon">＋</span><span>Начать игру</span></button>
-    <button class="main-menu-button menu-rating" data-menu="rating"><span class="button-icon">🏆</span><span>Рейтинг</span></button>
-    <button class="main-menu-button menu-settings" data-menu="settings"><span class="button-icon">⚙</span><span>Настройки</span></button>
-  </div>
+  <img class="main-menu-image" src="./main-menu.jpg" alt="Мой магазин">
+  <button class="menu-hit menu-continue" data-menu="continue" aria-label="Продолжить игру"></button>
+  <button class="menu-hit menu-new" data-menu="new" aria-label="Начать игру"></button>
+  <button class="menu-hit menu-rating" data-menu="rating" aria-label="Рейтинг"></button>
+  <button class="menu-hit menu-settings" data-menu="settings" aria-label="Настройки"></button>
   <div id="menuDialog" class="menu-dialog hidden">
     <div class="menu-dialog-card">
       <button id="menuDialogClose" class="menu-dialog-close">×</button>
