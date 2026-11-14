@@ -9,7 +9,12 @@ export class WorldController{
   setSystems(roads,buildings){this.roads=roads;this.buildings=buildings;this.renderer.render();}
   setRenderer(renderer){this.renderer=renderer;}
 
-  setBuildMode(enabled){this.buildMode=enabled;this.el.classList.toggle("build-mode",enabled);}
+  setBuildMode(enabled){
+    this.buildMode=enabled;
+    this.el.classList.toggle("build-mode",enabled);
+    if(this.renderer?.controls)this.renderer.controls.enabled=!enabled;
+    if(this.renderer)this.renderer.setBuildGridVisible(enabled);
+  }
   isInside(x,y){return x>=0&&y>=0&&x<this.cols&&y<this.rows;}
 
   isOccupied(x,y,state){
