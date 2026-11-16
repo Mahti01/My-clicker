@@ -2,44 +2,45 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Мой магазин</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="menu-shell">
-  <div class="brand">
-    <div class="brand-mark">М</div>
-    <div>
-      <div class="brand-title">МОЙ МАГАЗИН</div>
-      <div class="brand-subtitle">Экономический симулятор</div>
-    </div>
-  </div>
-
+<div id="menuScreen" class="screen menu-screen">
+  <div class="brand"><div class="brand-mark">М</div><div><div class="brand-title">МОЙ МАГАЗИН</div><div class="brand-subtitle">Экономический симулятор</div></div></div>
   <main class="menu">
-    <button id="continueBtn" class="menu-button disabled" disabled>
-      <span class="icon">▶</span><span>Продолжить игру</span>
-    </button>
-    <button id="startBtn" class="menu-button">
-      <span class="icon">＋</span><span>Начать игру</span>
-    </button>
-    <button id="ratingBtn" class="menu-button">
-      <span class="icon">🏆</span><span>Рейтинг</span>
-    </button>
-    <button id="settingsBtn" class="menu-button">
-      <span class="icon">⚙</span><span>Настройки</span>
-    </button>
+    <button id="continueBtn" class="menu-button disabled" disabled><span class="icon">▶</span><span>Продолжить игру</span></button>
+    <button id="startBtn" class="menu-button"><span class="icon">＋</span><span>Начать игру</span></button>
+    <button id="ratingBtn" class="menu-button"><span class="icon">🏆</span><span>Рейтинг</span></button>
+    <button id="settingsBtn" class="menu-button"><span class="icon">⚙</span><span>Настройки</span></button>
   </main>
-
-  <div class="version">Версия 0.1.0</div>
+  <div class="version">Версия 0.2.0 • первый магазин</div>
 </div>
 
-<div id="modal" class="modal hidden">
-  <div class="modal-card">
-    <button id="closeModal" class="close">×</button>
-    <div id="modalContent"></div>
+<div id="gameScreen" class="screen game-screen hidden">
+  <canvas id="gameCanvas"></canvas>
+  <div class="hud top-left">
+    <div class="money"><span>₽</span><b id="moneyValue">20 000</b></div>
+    <div class="stat">МАГАЗИН <b>Уровень 1</b></div>
   </div>
+  <div class="hud objective">
+    <div class="objective-title">🛒 Мой магазин</div>
+    <div class="objective-text">Построй первый стеллаж и начни продавать товары</div>
+  </div>
+  <div id="sidePanel" class="side-panel">
+    <button class="game-btn" data-action="shop"><span>🛒</span><small>Товар</small></button>
+    <button class="game-btn" data-action="build"><span>🏗️</span><small>Строить</small></button>
+    <button class="game-btn" data-action="staff"><span>👥</span><small>Персонал</small></button>
+    <button class="game-btn" data-action="finance"><span>💰</span><small>Финансы</small></button>
+    <button class="game-btn" data-action="rating"><span>🏆</span><small>Рейтинг</small></button>
+    <button class="game-btn" data-action="settings"><span>⚙️</span><small>Настройки</small></button>
+  </div>
+  <button id="backBtn" class="back-btn">‹</button>
+  <div id="toast" class="toast"></div>
 </div>
+
+<div id="modal" class="modal hidden"><div class="modal-card"><button id="closeModal" class="close">×</button><div id="modalContent"></div></div></div>
 <script src="script.js"></script>
 </body>
 </html>
