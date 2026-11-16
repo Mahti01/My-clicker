@@ -57,6 +57,22 @@ planter(-24,26);planter(24,26);
 // street lamps
 function lamp(x,z){cyl(.14,5,0x343a37,x,2.5,z);box(1.1,.12,.35,0x343a37,x+.45,5,z);cyl(.22,.16,0xffe7a1,x+.9,4.9,z)}
 lamp(-31,23);lamp(31,23);lamp(-31,-23);lamp(31,-23);
+// roof equipment and facade details
+box(10,.5,5,0x565b58,-17,9.1,-6);
+box(8,.4,4,0x565b58,17,9.1,7);
+for(let x=-19;x<=19;x+=9){cyl(.16,1.4,0x3d4340,x,9.55,-8);box(2.4,.12,1.5,0x707570,x,10.25,-8)}
+// rooftop ventilation units
+function hvac(x,z){box(3.2,1.4,2.6,0x777b77,x,10,z);box(2.4,.15,2,0x4c514e,x,10.78,z);cyl(.55,.18,0x343936,x,10.9,z)}
+hvac(-9,-5);hvac(9,8);
+// entrance canopy supports
+box(.25,3.8,.25,0x252b29,-4,4.7,23.3);box(.25,3.8,.25,0x252b29,4,4.7,23.3);
+box(9,.3,3.2,0x252b29,0,6.55,22.9);
+// shopping carts
+function cart(x,z){box(1.8,.12,1.2,0x8d928e,x,.55,z);box(1.55,.9,.08,0x8d928e,x,.98,z-.5);cyl(.16,.12,0x252b29,x-.65,.28,z+.48);cyl(.16,.12,0x252b29,x+.65,.28,z+.48)}
+cart(-8,27);cart(-5,27);
+// more street greenery
+function bush(x,z){cyl(.35,.7,0x6e5339,x,.65,z);cyl(1.2,1.5,0x4f8738,x,1.45,z);cyl(.9,1.1,0x659c45,x+.6,1.6,z)}
+[[-34,30],[34,30],[-34,-30],[34,-30],[-45,20],[45,20],[-45,-20],[45,-20]].forEach(p=>bush(p[0],p[1]));
 // exterior signs/decor
 textLabel('МОЙ МАГАЗИН',0,-22.1);textLabel('ВХОД',0,22.5);
 function tree(x,z){cyl(.45,3,0x765337,x,1.5,z);cyl(2.2,3.2,0x77b52f,x,4,z);cyl(1.5,2.2,0x91c93d,x+1,4.8,z+.2)}
