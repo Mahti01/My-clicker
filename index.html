@@ -15,19 +15,16 @@
     <button id="ratingBtn" class="menu-button"><span class="icon">🏆</span><span>Рейтинг</span></button>
     <button id="settingsBtn" class="menu-button"><span class="icon">⚙</span><span>Настройки</span></button>
   </main>
-  <div class="version">Версия 0.2.0 • первый магазин</div>
+  <div class="version">Версия 0.3.0 • 3D prototype</div>
 </div>
 
 <div id="gameScreen" class="screen game-screen hidden">
-  <canvas id="gameCanvas"></canvas>
+  <div id="scene"></div>
   <div class="hud top-left">
     <div class="money"><span>₽</span><b id="moneyValue">20 000</b></div>
     <div class="stat">МАГАЗИН <b>Уровень 1</b></div>
   </div>
-  <div class="hud objective">
-    <div class="objective-title">🛒 Мой магазин</div>
-    <div class="objective-text">Построй первый стеллаж и начни продавать товары</div>
-  </div>
+  <div class="objective"><div class="objective-title">🛒 Мой магазин</div><div class="objective-text">Первый магазин. Дальше будем развивать здание, ассортимент и территорию.</div></div>
   <div id="sidePanel" class="side-panel">
     <button class="game-btn" data-action="shop"><span>🛒</span><small>Товар</small></button>
     <button class="game-btn" data-action="build"><span>🏗️</span><small>Строить</small></button>
@@ -37,10 +34,11 @@
     <button class="game-btn" data-action="settings"><span>⚙️</span><small>Настройки</small></button>
   </div>
   <button id="backBtn" class="back-btn">‹</button>
-  <div id="toast" class="toast"></div>
+  <div class="camera-hint">ЛКМ/палец — перемещение • колесо/щипок — масштаб • ПКМ/2 пальца — поворот</div>
 </div>
 
 <div id="modal" class="modal hidden"><div class="modal-card"><button id="closeModal" class="close">×</button><div id="modalContent"></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
