@@ -46,7 +46,7 @@ function animate(){requestAnimationFrame(animate);if(renderer){renderer.render(s
 function resize(){if(!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}
 addEventListener('resize',resize);
 function startGame(load){menuScreen.classList.add('hidden');gameScreen.classList.remove('hidden');if(!started){started=true;buildScene()}if(!load)localStorage.setItem('myStoreSave','1');localStorage.setItem('myStoreSession','active')}
-document.getElementById('startBtn').onclick=()=>startGame(false);document.getElementById('continueBtn').onclick=()=>startGame(true);document.getElementById('backBtn').onclick=()=>{gameScreen.classList.add('hidden');menuScreen.classList.remove('hidden')};
+document.getElementById('startBtn').onclick=(e)=>{e.preventDefault();e.stopPropagation();startGame(false)};document.getElementById('continueBtn').onclick=(e)=>{e.preventDefault();e.stopPropagation();startGame(true)};document.getElementById('backBtn').onclick=(e)=>{e.preventDefault();e.stopPropagation();gameScreen.classList.add('hidden');menuScreen.classList.remove('hidden')};
 renderer=null;
 function pointerDown(e){drag={x:e.clientX,y:e.clientY,yaw:orbit.yaw,pitch:orbit.pitch,panX:orbit.target.x,panZ:orbit.target.z,button:e.button};}
 function pointerMove(e){if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(drag.button===2){orbit.yaw=drag.yaw-dx*.008;orbit.pitch=Math.max(.38,Math.min(1.25,drag.pitch+dy*.006))}else{orbit.target.x=drag.panX-dx*.035*orbit.distance/35;orbit.target.z=drag.panZ+dy*.035*orbit.distance/35}updateCamera()}
@@ -62,6 +62,6 @@ document.querySelectorAll('.game-btn').forEach(b=>{
   b.addEventListener('pointerup',e=>e.stopPropagation(),{passive:true});
   b.addEventListener('click',e=>{e.stopPropagation();action()});
 });
-document.getElementById('ratingBtn').addEventListener('click',()=>openModal('<h2>🏆 Рейтинг</h2><p>Рейтинг магазинов появится после подключения сохранений и экономики.</p>'));
-document.getElementById('settingsBtn').addEventListener('click',()=>openModal('<h2>⚙️ Настройки</h2><p>Здесь будут качество графики, звук, управление камерой и другие параметры.</p>'));
+document.getElementById('ratingBtn').onclick=(e)=>{e.preventDefault();e.stopPropagation();openModal('<h2>🏆 Рейтинг</h2><p>Рейтинг магазинов появится после подключения сохранений и экономики.</p>')};
+document.getElementById('settingsBtn').onclick=(e)=>{e.preventDefault();e.stopPropagation();openModal('<h2>⚙️ Настройки</h2><p>Здесь будут качество графики, звук, управление камерой и другие параметры.</p>')};
 if(localStorage.getItem('myStoreSave')){const b=document.getElementById('continueBtn');b.disabled=false;b.classList.remove('disabled')}
