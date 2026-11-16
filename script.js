@@ -62,5 +62,6 @@ document.querySelectorAll('.game-btn').forEach(b=>{
   b.addEventListener('pointerup',e=>e.stopPropagation(),{passive:true});
   b.addEventListener('click',e=>{e.stopPropagation();action()});
 });
-document.getElementById('ratingBtn').addEventListener('click',()=>openModal('<h2>🏆 Рейтинг</h2><p>Рейтинг магазинов появится после подключения сохранений и экономики.</p>');document.getElementById('settingsBtn').addEventListener('click',()=>openModal('<h2>⚙️ Настройки</h2><p>Здесь будут качество графики, звук, управление камерой и другие параметры.</p>');
+document.getElementById('ratingBtn').addEventListener('click',()=>openModal('<h2>🏆 Рейтинг</h2><p>Рейтинг магазинов появится после подключения сохранений и экономики.</p>'));
+document.getElementById('settingsBtn').addEventListener('click',()=>openModal('<h2>⚙️ Настройки</h2><p>Здесь будут качество графики, звук, управление камерой и другие параметры.</p>'));
 if(localStorage.getItem('myStoreSave')){const b=document.getElementById('continueBtn');b.disabled=false;b.classList.remove('disabled')}
