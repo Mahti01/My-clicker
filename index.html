@@ -1,52 +1,45 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>Мой магазин — 3D</title>
-<link rel="stylesheet" href="./styles.css">
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.180.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.180.0/examples/jsm/"}}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Мой магазин</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="app">
-<div id="mainMenu">
-  <img class="main-menu-image" src="./main-menu.jpg" alt="Мой магазин">
-  <button class="menu-hit menu-continue" data-menu="continue" aria-label="Продолжить игру"></button>
-  <button class="menu-hit menu-new" data-menu="new" aria-label="Начать игру"></button>
-  <button class="menu-hit menu-rating" data-menu="rating" aria-label="Рейтинг"></button>
-  <button class="menu-hit menu-settings" data-menu="settings" aria-label="Настройки"></button>
-  <div id="menuDialog" class="menu-dialog hidden">
-    <div class="menu-dialog-card">
-      <button id="menuDialogClose" class="menu-dialog-close">×</button>
-      <div id="menuDialogContent"></div>
+<div class="menu-shell">
+  <div class="brand">
+    <div class="brand-mark">М</div>
+    <div>
+      <div class="brand-title">МОЙ МАГАЗИН</div>
+      <div class="brand-subtitle">Экономический симулятор</div>
     </div>
   </div>
+
+  <main class="menu">
+    <button id="continueBtn" class="menu-button disabled" disabled>
+      <span class="icon">▶</span><span>Продолжить игру</span>
+    </button>
+    <button id="startBtn" class="menu-button">
+      <span class="icon">＋</span><span>Начать игру</span>
+    </button>
+    <button id="ratingBtn" class="menu-button">
+      <span class="icon">🏆</span><span>Рейтинг</span>
+    </button>
+    <button id="settingsBtn" class="menu-button">
+      <span class="icon">⚙</span><span>Настройки</span>
+    </button>
+  </main>
+
+  <div class="version">Версия 0.1.0</div>
 </div>
-<div id="scene"></div>
-<section class="hud hud-left">
-<div class="card date-card"><div class="date-top">ДЕНЬ <span id="day">1</span></div><div class="time" id="time">09:20</div><div class="muted">☀️ Лето · Понедельник</div><div class="location">🏪 Ваш магазин</div></div>
-<div class="card money-card">💵 <strong id="money">20 000 ₽</strong></div>
-<div class="card reputation-card"><div class="label">🙂 РЕПУТАЦИЯ</div><div class="big"><span id="reputation">50</span>%</div><div class="progress"><i id="repBar"></i></div></div>
-<div class="card task-card"><div class="task-title">🎯 Продайте 3 товара</div><div class="task-status" id="taskStatus">0 / 3</div><div class="task-reward">НАГРАДА +500 ₽</div></div>
-</section>
-<section class="hud hud-right">
-<button class="menu-btn" data-panel="build"><span>🏗️</span><b>СТРОЙКА</b></button>
-<button class="menu-btn" data-panel="report"><span>📊</span><b>ОТЧЁТ</b></button>
-<button class="menu-btn" data-panel="prices"><span>🏷️</span><b>ЦЕНЫ</b></button>
-<button class="menu-btn" data-panel="products"><span>📦</span><b>ТОВАРЫ</b></button>
-<button class="menu-btn" data-panel="development"><span>🛠️</span><b>РАЗВИТИЕ</b></button>
-<button class="menu-btn" data-panel="staff"><span>👨‍💼</span><b>ПЕРСОНАЛ</b></button>
-<button class="menu-btn" data-panel="ads"><span>📣</span><b>РЕКЛАМА</b></button>
-<button class="menu-btn" data-panel="bank"><span>🏦</span><b>БАНК</b></button>
-<button class="menu-btn" data-panel="rating"><span>🏆</span><b>РЕЙТИНГ</b></button>
-<button class="menu-btn" data-panel="settings"><span>⚙️</span><b>НАСТРОЙКИ</b></button>
-</section>
-<section class="bottom-left card stock-card"><div><span>🥛 МОЛОКО</span><b id="stockMilk">24</b></div><div><span>🍞 ХЛЕБ</span><b id="stockBread">31</b></div><div><span>🧴 КОСМЕТИКА</span><b id="stockBeauty">18</b></div><div><span>👟 ОБУВЬ</span><b id="stockShoes">8</b></div></section>
-<section class="speed-card"><button id="soundBtn">🔊</button><button id="pauseBtn">Ⅱ</button><button id="playBtn" class="active">▶</button><button data-speed="2">2×</button><button data-speed="4">4×</button></section>
-<div id="toast"></div>
-<div id="panel" class="panel hidden"><div class="panel-inner"><button id="closePanel" class="close">×</button><div id="panelContent"></div></div></div>
-<div id="buildBar" class="build-bar hidden"><button data-build="shelf">🛒 Стеллаж <small>1 200 ₽</small></button><button data-build="cash">🧾 Касса <small>3 500 ₽</small></button><button data-build="warehouse">📦 Склад <small>7 000 ₽</small></button><button data-build="department">🏪 Отдел <small>5 000 ₽</small></button><button data-build="decor">🌳 Декор <small>500 ₽</small></button></div>
-<div class="hint">ЛКМ — вращение · колесо — масштаб · перетаскивай карту · нажми объект</div>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-card">
+    <button id="closeModal" class="close">×</button>
+    <div id="modalContent"></div>
+  </div>
 </div>
-<script type="module" src="./game.js"></script>
-</body></html>
+<script src="script.js"></script>
+</body>
+</html>
