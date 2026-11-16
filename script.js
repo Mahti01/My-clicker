@@ -56,6 +56,11 @@ document.addEventListener('wheel',e=>{if(gameScreen.classList.contains('hidden')
 let touchStart=null;renderer&&null;
 document.addEventListener('touchstart',e=>{if(e.target!==renderer?.domElement)return;if(e.touches.length===1)touchStart={x:e.touches[0].clientX,y:e.touches[0].clientY};else if(e.touches.length===2)pinch={d:Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY),distance:orbit.distance}},{passive:true});
 document.addEventListener('touchmove',e=>{if(e.target!==renderer?.domElement)return;if(e.touches.length===2&&pinch){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);orbit.distance=Math.max(28,Math.min(72,pinch.distance*pinch.d/d));updateCamera()}},{passive:true});
-document.querySelectorAll('.game-btn').forEach(b=>b.onclick=()=>{const a=b.dataset.action;const titles={shop:'🛒 Товары',build:'🏗️ Строительство',staff:'👥 Персонал',finance:'💰 Финансы',rating:'🏆 Рейтинг',settings:'⚙️ Настройки'};openModal('<h2>'+titles[a]+'</h2><p>Этот раздел уже находится в интерфейсе. Следующим этапом подключим его к реальной игровой механике.</p>')});
-document.getElementById('ratingBtn').onclick=()=>openModal('<h2>🏆 Рейтинг</h2><p>Рейтинг магазинов появится после подключения сохранений и экономики.</p>');document.getElementById('settingsBtn').onclick=()=>openModal('<h2>⚙️ Настройки</h2><p>Здесь будут качество графики, звук, управление камерой и другие параметры.</p>');
+document.querySelectorAll('.game-btn').forEach(b=>{
+  const action=()=>{const a=b.dataset.action;const titles={shop:'🛒 Товары',build:'🏗️ Строительство',staff:'👥 Персонал',finance:'💰 Финансы',rating:'🏆 Рейтинг',settings:'⚙️ Настройки'};openModal('<h2>'+titles[a]+'</h2><p>Этот раздел уже находится в интерфейсе. Следующим этапом подключим его к реальной игровой механике.</p>')};
+  b.addEventListener('pointerdown',e=>e.stopPropagation(),{passive:true});
+  b.addEventListener('pointerup',e=>e.stopPropagation(),{passive:true});
+  b.addEventListener('click',e=>{e.stopPropagation();action()});
+});
+document.getElementById('ratingBtn').addEventListener('click',()=>openModal('<h2>🏆 Рейтинг</h2><p>Рейтинг магазинов появится после подключения сохранений и экономики.</p>');document.getElementById('settingsBtn').addEventListener('click',()=>openModal('<h2>⚙️ Настройки</h2><p>Здесь будут качество графики, звук, управление камерой и другие параметры.</p>');
 if(localStorage.getItem('myStoreSave')){const b=document.getElementById('continueBtn');b.disabled=false;b.classList.remove('disabled')}
