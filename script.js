@@ -33,6 +33,30 @@ box(12,5,10,0x747873,-20,3,-14);box(8,1,6,0x8c6d45,-20,5,-14);for(let i=0;i<3;i+
 for(let x=-3;x<=15;x+=4){cyl(.9,.35,0xd83f36,x,1.2,10);cyl(.75,.35,0xf0b93e,x,1.65,10);}
 // lights
 for(let x=-20;x<=20;x+=10)for(let z=-12;z<=12;z+=12){cyl(.35,.12,0xffe8a6,x,7.7,z)}
+// exterior architectural details
+box(18,.45,2.2,0x252b29,0,8.85,20.6);
+box(14,.35,3.2,0x4b514e,0,7.95,21.8);
+for(let x=-6;x<=6;x+=6){box(.45,7,.45,0x252b29,x,4,20.55)}
+box(7.2,5.8,.22,0x18201f,0,3.2,20.72);
+box(3.2,5.2,.12,0x75aebb,-1.7,3.1,20.9);box(3.2,5.2,.12,0x75aebb,1.7,3.1,20.9);
+box(.08,5,.08,0xe6e1c9,0,3.1,21.02);
+box(10,.18,.7,0xe6b85c,0,6.35,21.0);
+box(18,.22,.55,0xe6b85c,0,7.25,20.95);
+for(let x=-23;x<=23;x+=8){box(5.8,5.7,.12,0x75aebb,x,4,20.72);box(.12,5.9,.14,0x252b29,x,4,20.8)}
+// facade vertical mullions
+for(let x=-27;x<=27;x+=8){box(.18,7.6,.22,0x252b29,x,4.1,20.62)}
+// sidewalk, curb and entrance path
+box(60,.22,7,0xb8b8b2,0,.12,24);
+box(60,.35,.5,0x777b77,0,.28,27.4);
+for(let x=-5;x<=5;x+=2.5){box(.12,.04,3.2,0xe9e7df,x,.31,25.2)}
+box(8,.12,8,0xaaa9a3,0,.24,29);
+for(let x=-3;x<=3;x+=2){cyl(.08,.05,0x666863,x,.32,29)}
+// parking islands / planters
+function planter(x,z){box(3.2,.5,2.2,0x6f6253,x,.4,z);cyl(.45,1.2,0x765337,x,.95,z);cyl(1.5,2.3,0x5e963d,x,2.3,z)}
+planter(-24,26);planter(24,26);
+// street lamps
+function lamp(x,z){cyl(.14,5,0x343a37,x,2.5,z);box(1.1,.12,.35,0x343a37,x+.45,5,z);cyl(.22,.16,0xffe7a1,x+.9,4.9,z)}
+lamp(-31,23);lamp(31,23);lamp(-31,-23);lamp(31,-23);
 // exterior signs/decor
 textLabel('МОЙ МАГАЗИН',0,-22.1);textLabel('ВХОД',0,22.5);
 function tree(x,z){cyl(.45,3,0x765337,x,1.5,z);cyl(2.2,3.2,0x77b52f,x,4,z);cyl(1.5,2.2,0x91c93d,x+1,4.8,z+.2)}
