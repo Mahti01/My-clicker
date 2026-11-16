@@ -1,52 +1,61 @@
-const menuScreen=document.getElementById('menuScreen'),gameScreen=document.getElementById('gameScreen'),canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d');
-const modal=document.getElementById('modal'),content=document.getElementById('modalContent');let W=0,H=0,dpr=1,cam={x:0,y:40,zoom:1},drag=null,lastTouch=null;
-function resize(){dpr=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);draw()}
-addEventListener('resize',resize);
+const menuScreen=document.getElementById('menuScreen'),gameScreen=document.getElementById('gameScreen'),sceneEl=document.getElementById('scene'),modal=document.getElementById('modal'),content=document.getElementById('modalContent');
+let renderer,scene,camera,clock,root,orbit={yaw:Math.PI/4,pitch:.72,distance:48,target:new THREE.Vector3(0,0,0)},drag=null,pinch=null,started=false;
 function openModal(html){content.innerHTML=html;modal.classList.remove('hidden')}function closeModal(){modal.classList.add('hidden')}document.getElementById('closeModal').onclick=closeModal;modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
-function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');clearTimeout(window._toast);window._toast=setTimeout(()=>el.classList.remove('show'),1500)}
-function startGame(load=false){menuScreen.classList.add('hidden');gameScreen.classList.remove('hidden');if(!load)localStorage.setItem('myStoreSave','1');localStorage.setItem('myStoreSession','active');resize()}
-function iso(x,y){return {x:W/2+(x-y)*.72*cam.zoom+cam.x,y:H/2+(x+y)*.36*cam.zoom+cam.y}}
-function poly(points,fill,stroke){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.stroke()}}
-function rectIso(x,y,w,h,fill){const a=iso(x,y),b=iso(x+w,y),c=iso(x+w,y+h),d=iso(x,y+h);poly([a,b,c,d],fill,'rgba(60,65,60,.22)')}
-function lineIso(x1,y1,x2,y2,stroke,width=1){const a=iso(x1,y1),b=iso(x2,y2);ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
-function drawTree(x,y,s=1){const p=iso(x,y);ctx.fillStyle='#6f5330';ctx.fillRect(p.x-3*s,p.y-22*s,6*s,22*s);ctx.fillStyle='#8ecb39';ctx.beginPath();ctx.arc(p.x,p.y-27*s,13*s,0,Math.PI*2);ctx.fill();ctx.fillStyle='#73ad31';ctx.beginPath();ctx.arc(p.x-8*s,p.y-20*s,9*s,0,Math.PI*2);ctx.fill()}
-function drawCar(x,y,scale=1,color='#596269'){const p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-.28);ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(-20*scale,1,40*scale,9*scale);ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-20*scale,-8*scale,40*scale,13*scale,4*scale);ctx.fill();ctx.fillStyle='#b9d0d5';ctx.fillRect(-10*scale,-7*scale,19*scale,6*scale);ctx.restore()}
-function drawShelf(x,y,w=16){rectIso(x,y,w,6,'#e9e8e1');lineIso(x+2,y+1,x+w-2,y+1,'#a8a7a0',1);for(let i=0;i<4;i++){const p=iso(x+4+i*3,y+2);ctx.fillStyle=i%2?'#f07d4f':'#efc34e';ctx.fillRect(p.x-2,p.y-2,4,3)}}
-function drawCheckout(x,y){rectIso(x,y,12,6,'#d9d8d0');const p=iso(x+6,y+3);ctx.fillStyle='#20272a';ctx.fillRect(p.x-4,p.y-5,8,6);ctx.fillStyle='#f1c44e';ctx.fillRect(p.x-1,p.y-3,3,2)}
-function drawStore(){// floor and walls
-rectIso(-72,-45,144,90,'#f2f1eb');
-lineIso(-72,-45,72,-45,'#777b79',3);lineIso(72,-45,72,45,'#777b79',3);lineIso(72,45,-72,45,'#777b79',3);lineIso(-72,45,-72,-45,'#777b79',3);
-rectIso(-68,-41,136,82,'#d9dad6');
-for(let x=-60;x<61;x+=12)for(let y=-34;y<35;y+=12)rectIso(x,y,10,10,(x+y)%24===0?'#e5e5df':'#deded9');
-drawShelf(-48,-28,28);drawShelf(-10,-28,28);drawShelf(28,-28,24);drawShelf(-48,-5,28);drawShelf(-10,-5,28);drawShelf(28,-5,24);drawShelf(-30,18,28);drawShelf(8,18,28);
-drawCheckout(-53,29);drawCheckout(-37,29);drawCheckout(27,29);
-rectIso(-8,-39,16,7,'#4d5350');const ent=iso(0,-36);ctx.fillStyle='#8fd0e4';ctx.fillRect(ent.x-12,ent.y-3,24,5);
-const sp=iso(-58,-36);ctx.fillStyle='#fff';ctx.fillRect(sp.x-15,sp.y-7,30,8);ctx.fillStyle='#b9473f';ctx.fillRect(sp.x-12,sp.y-4,24,3);
-}
-function draw(){if(gameScreen.classList.contains('hidden'))return;ctx.clearRect(0,0,W,H);ctx.fillStyle='#e6e7e5';ctx.fillRect(0,0,W,H);
-cam.zoom=Math.max(.72,Math.min(1.45,cam.zoom));
-rectIso(-330,-230,660,460,'#d8d9d5');
-// roads
-rectIso(-330,-205,660,38,'#b7b9b8');rectIso(-330,167,660,38,'#b7b9b8');rectIso(-205,-230,38,460,'#b7b9b8');rectIso(167,-230,38,460,'#b7b9b8');
-for(let x=-310;x<310;x+=28){lineIso(x,-187,x+14,-187,'#eee',2);lineIso(x,187,x+14,187,'#eee',2)}for(let y=-210;y<210;y+=28){lineIso(-187,y,-187,y+14,'#eee',2);lineIso(187,y,187,y+14,'#eee',2)}
+function mat(c,rough=.8){return new THREE.MeshStandardMaterial({color:c,roughness:rough})}
+function box(w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x,y,z);root.add(m);return m}
+function cyl(r,h,c,x,y,z){const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,16),mat(c));m.position.set(x,y,z);root.add(m);return m}
+function textLabel(t,x,z){const c=document.createElement('canvas');c.width=512;c.height=128;const g=c.getContext('2d');g.fillStyle='rgba(30,34,33,.88)';g.roundRect(8,8,496,112,22);g.fill();g.fillStyle='#fff';g.font='bold 54px Arial';g.textAlign='center';g.textBaseline='middle';g.fillText(t,256,64);const tx=new THREE.CanvasTexture(c);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true}));s.scale.set(7,1.75,1);s.position.set(x,4,z);root.add(s)}
+function buildScene(){scene=new THREE.Scene();scene.background=new THREE.Color(0xdde2e0);scene.fog=new THREE.Fog(0xdde2e0,70,130);camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,.1,300);renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(1.8,devicePixelRatio||1));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;sceneEl.appendChild(renderer.domElement);
+clock=new THREE.Clock();root=new THREE.Group();scene.add(root);
+scene.add(new THREE.HemisphereLight(0xffffff,0x7d847e,2.1));const sun=new THREE.DirectionalLight(0xffffff,3.2);sun.position.set(-30,45,20);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-55;sun.shadow.camera.right=55;sun.shadow.camera.top=55;sun.shadow.camera.bottom=-55;scene.add(sun);
+box(110,.25,110,0xd3d5d1,0,-.15,0);box(110,.16,14,0x9b9e9d,0,.05,30);box(110,.16,14,0x9b9e9d,0,.05,-30);box(14,.16,46,0x9b9e9d,30,.05,0);box(14,.16,46,0x9b9e9d,-30,.05,0);
+for(let x=-48;x<=48;x+=12){box(5,.05,.35,0xf0f0e9,x,.16,30);box(5,.05,.35,0xf0f0e9,x,.16,-30)}for(let z=-18;z<=18;z+=12){box(.35,.05,5,0xf0f0e9,30,.16,z);box(.35,.05,5,0xf0f0e9,-30,.16,z)}
 // parking
-for(let x=-120;x<=120;x+=30){lineIso(x,-145,x,-125,'#fff',1);lineIso(x,125,x,145,'#fff',1)}for(let y=-100;y<=100;y+=28){lineIso(-145,y,-125,y,'#fff',1);lineIso(125,y,145,y,'#fff',1)}
-drawCar(-105,-137,.8);drawCar(72,-137,.8,'#798c65');drawCar(108,137,.8,'#5c6671');drawCar(-76,137,.8,'#a5a7a0');
-// decoration
-[[-175,-175],[175,-175],[-175,175],[175,175],[-205,100],[205,-100]].forEach(a=>drawTree(a[0],a[1],1));
-drawStore();
-// delivery area
-rectIso(82,-82,45,18,'#c8c9c6');const tr=iso(104,-72);ctx.fillStyle='#fff';ctx.fillRect(tr.x-18,tr.y-9,36,12);ctx.fillStyle='#d94c3f';ctx.fillRect(tr.x-12,tr.y-4,24,3);
-// label
-const lp=iso(0,0);ctx.fillStyle='rgba(35,39,38,.82)';ctx.beginPath();ctx.roundRect(lp.x-58,lp.y-102,116,24,8);ctx.fill();ctx.fillStyle='#fff';ctx.font='800 12px Arial';ctx.textAlign='center';ctx.fillText('МОЙ МАГАЗИН',lp.x,lp.y-86);
-}
-canvas.addEventListener('wheel',e=>{e.preventDefault();cam.zoom*=e.deltaY<0?1.08:.92;draw()},{passive:false});
-canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y}});
-canvas.addEventListener('pointermove',e=>{if(!drag)return;cam.x=drag.cx+(e.clientX-drag.x);cam.y=drag.cy+(e.clientY-drag.y);draw()});
-canvas.addEventListener('pointerup',()=>drag=null);canvas.addEventListener('pointercancel',()=>drag=null);
-canvas.addEventListener('touchstart',e=>{if(e.touches.length===2)lastTouch={dist:Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY),zoom:cam.zoom}},{passive:true});
-canvas.addEventListener('touchmove',e=>{if(e.touches.length===2&&lastTouch){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);cam.zoom=lastTouch.zoom*d/lastTouch.dist;draw()}},{passive:true});canvas.addEventListener('touchend',()=>lastTouch=null);
-document.getElementById('startBtn').onclick=()=>startGame(false);document.getElementById('continueBtn').onclick=()=>startGame(true);
-document.getElementById('backBtn').onclick=()=>{gameScreen.classList.add('hidden');menuScreen.classList.remove('hidden')};
-document.querySelectorAll('.game-btn').forEach(b=>b.onclick=()=>{const a=b.dataset.action;if(a==='settings')openModal('<h2>⚙️ Настройки</h2><p>Настройки камеры, звука и качества подключим дальше.</p>');else if(a==='build')openModal('<h2>🏗️ Строительство</h2><p>Следующий этап — покупка и установка стеллажей, касс и новых помещений.</p>');else if(a==='shop')openModal('<h2>🛒 Товары</h2><p>Здесь появится закупка товара и управление ассортиментом.</p>');else if(a==='staff')openModal('<h2>👥 Персонал</h2><p>Найм кассиров, грузчиков и управляющих будет доступен позже.</p>');else if(a==='finance')openModal('<h2>💰 Финансы</h2><p>Выручка и расходы магазина появятся после подключения продаж.</p>');else openModal('<h2>🏆 Рейтинг</h2><p>Рейтинг магазинов появится позже.</p>')});
+for(let x=-20;x<=20;x+=10){box(.12,.04,8,0xffffff,x,.18,23);box(.12,.04,8,0xffffff,x,.18,-23)}
+// store shell
+box(54,.5,40,0xb8bbb8,0,.3,0);box(54,8,.5,0xf1f0eb,0,4,-20);box(54,8,.5,0xf1f0eb,0,4,20);box(.5,8,40,0xf1f0eb,-27,4,0);box(.5,8,40,0xf1f0eb,27,4,0);
+// glass frontage
+for(let x=-22;x<=22;x+=8){box(6,6,.18,0x9cc8d0,x,4,20.25)}
+// roof trims
+box(56,.7,2,0x686d69,0,8.4,-20.5);box(56,.7,2,0x686d69,0,8.4,20.5);
+// entrance
+box(8,6,.3,0x4c5352,0,3,20.45);box(7,5,.15,0x7bc5d8,0,2.8,20.65);
+// interior floor
+box(52,.12,38,0xe2e1dc,0,.62,0);
+for(let x=-20;x<=20;x+=8)for(let z=-14;z<=14;z+=8)box(7.5,.03,7.5,((x+z)/8)%2?0xd9d9d3:0xe8e7e1,x,.7,z);
+// aisles
+for(let x=-19;x<=19;x+=9){box(2,2.2,22,0xe8e7df,x,2,-1);box(1.8,.25,21,0xb8b7b0,x,3.2,-1);for(let z=-10;z<=10;z+=5){box(1.2,.7,1.5,0xd94c45,x,3.7,z);box(1.2,.7,1.5,0xe9b33f,x,4.5,z)}}
+// checkout zone
+for(let x=-18;x<=18;x+=9){box(5,1.1,2.4,0xc7c5bd,x,1.25,15);box(1.2,1.1,1.5,0x3b4142,x,2.35,15)}
+// stock room
+box(12,5,10,0xc5c7c4,-20,3,-14);box(8,1,6,0xb18c5f,-20,5,-14);for(let i=0;i<3;i++)box(2.4,2,2.4,0xd5b17a,-24+i*3,2,-14);
+// produce
+for(let x=-3;x<=15;x+=4){cyl(.9,.35,0xd83f36,x,1.2,10);cyl(.75,.35,0xf0b93e,x,1.65,10);}
+// lights
+for(let x=-20;x<=20;x+=10)for(let z=-12;z<=12;z+=12){cyl(.25,.1,0xffffff,x,7.7,z)}
+// exterior signs/decor
+textLabel('МОЙ МАГАЗИН',0,-22.1);
+function tree(x,z){cyl(.45,3,0x765337,x,1.5,z);cyl(2.2,3.2,0x77b52f,x,4,z);cyl(1.5,2.2,0x91c93d,x+1,4.8,z+.2)}
+[[-40,-38],[40,-38],[-40,38],[40,38],[-44,10],[44,-10]].forEach(p=>tree(p[0],p[1]));
+function car(x,z,c){box(3.2,1.1,5.2,c,x,.75,z);box(2.5,.7,2.1,0xb9d0d5,x,1.25,z-.1)}
+car(-12,25,0x596269);car(8,25,0x6e8b61);car(16,-25,0x596b79);
+const van=box(5,3,9,0xf3f3ef,22,-14,2);box(5.2,.8,3,0xd84a3e,22,-14,2.1);
+textLabel('SHOP',0,0);updateCamera();animate()}
+function updateCamera(){const t=orbit.target;camera.position.set(t.x+Math.sin(orbit.yaw)*Math.cos(orbit.pitch)*orbit.distance,t.y+Math.sin(orbit.pitch)*orbit.distance,t.z+Math.cos(orbit.yaw)*Math.cos(orbit.pitch)*orbit.distance);camera.lookAt(t)}
+function animate(){requestAnimationFrame(animate);if(renderer){renderer.render(scene,camera)}}
+function resize(){if(!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}
+addEventListener('resize',resize);
+function startGame(load){menuScreen.classList.add('hidden');gameScreen.classList.remove('hidden');if(!started){started=true;buildScene()}if(!load)localStorage.setItem('myStoreSave','1');localStorage.setItem('myStoreSession','active')}
+document.getElementById('startBtn').onclick=()=>startGame(false);document.getElementById('continueBtn').onclick=()=>startGame(true);document.getElementById('backBtn').onclick=()=>{gameScreen.classList.add('hidden');menuScreen.classList.remove('hidden')};
+renderer=null;
+function pointerDown(e){drag={x:e.clientX,y:e.clientY,yaw:orbit.yaw,pitch:orbit.pitch,panX:orbit.target.x,panZ:orbit.target.z,button:e.button};}
+function pointerMove(e){if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(drag.button===2){orbit.yaw=drag.yaw-dx*.008;orbit.pitch=Math.max(.38,Math.min(1.25,drag.pitch+dy*.006))}else{orbit.target.x=drag.panX-dx*.035*orbit.distance/35;orbit.target.z=drag.panZ+dy*.035*orbit.distance/35}updateCamera()}
+function pointerUp(){drag=null}
+document.addEventListener('contextmenu',e=>e.preventDefault());document.addEventListener('pointerdown',e=>{if(gameScreen.classList.contains('hidden')||!renderer)return;if(e.target!==renderer.domElement)return;pointerDown(e)});document.addEventListener('pointermove',e=>{if(drag)pointerMove(e)});document.addEventListener('pointerup',pointerUp);
+document.addEventListener('wheel',e=>{if(gameScreen.classList.contains('hidden')||!renderer)return;orbit.distance=Math.max(28,Math.min(72,orbit.distance*(e.deltaY>0?1.08:.92)));updateCamera()},{passive:true});
+let touchStart=null;renderer&&null;
+document.addEventListener('touchstart',e=>{if(e.target!==renderer?.domElement)return;if(e.touches.length===1)touchStart={x:e.touches[0].clientX,y:e.touches[0].clientY};else if(e.touches.length===2)pinch={d:Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY),distance:orbit.distance}},{passive:true});
+document.addEventListener('touchmove',e=>{if(e.target!==renderer?.domElement)return;if(e.touches.length===2&&pinch){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);orbit.distance=Math.max(28,Math.min(72,pinch.distance*pinch.d/d));updateCamera()}},{passive:true});
+document.querySelectorAll('.game-btn').forEach(b=>b.onclick=()=>{const a=b.dataset.action;const titles={shop:'🛒 Товары',build:'🏗️ Строительство',staff:'👥 Персонал',finance:'💰 Финансы',rating:'🏆 Рейтинг',settings:'⚙️ Настройки'};openModal('<h2>'+titles[a]+'</h2><p>Этот раздел уже находится в интерфейсе. Следующим этапом подключим его к реальной игровой механике.</p>')});
+document.getElementById('ratingBtn').onclick=()=>openModal('<h2>🏆 Рейтинг</h2><p>Рейтинг магазинов появится после подключения сохранений и экономики.</p>');document.getElementById('settingsBtn').onclick=()=>openModal('<h2>⚙️ Настройки</h2><p>Здесь будут качество графики, звук, управление камерой и другие параметры.</p>');
 if(localStorage.getItem('myStoreSave')){const b=document.getElementById('continueBtn');b.disabled=false;b.classList.remove('disabled')}
